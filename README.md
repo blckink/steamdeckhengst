@@ -45,9 +45,17 @@ On first launch, the app will automatically download UMU Launcher and Goldberg S
 
 Once in the main menu, click the + button to add a handler. Create profiles if you want to store save data, and have a look through the settings menu.
 
+## Setup
+
+Run the `setup.sh` script to install required system packages such as `libarchive-dev` and set up the Rust toolchain. The script works with `apt` or `pacman` depending on your distribution:
+
+```bash
+./setup.sh
+```
+
 ## Building
 
-You'll need a Rust toolchain installed with the 2024 Edition. Clone the repo, and run `build.sh`. This will place the executable, as well as the relevant data files, into the "build" folder.
+After the setup script has finished, clone the repo and run `build.sh`. This will place the executable, as well as the relevant data files, into the "build" folder.
 
 
 ## How it Works
