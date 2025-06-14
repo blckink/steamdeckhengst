@@ -55,7 +55,14 @@ Run the `setup.sh` script to install required system packages such as `libarchiv
 
 ## Building
 
-After the setup script has finished, clone the repo and run `build.sh`. This will place the executable, as well as the relevant data files, into the "build" folder.
+After the setup script has finished, clone the repo and run `build.sh` to build the project. The script defaults to a release build, but you can set `BUILD_MODE=debug` for a debug build:
+
+```bash
+export BUILD_MODE=debug
+./build.sh
+```
+
+If `BUILD_MODE` is omitted the release build is produced. The executable and data files are placed in the `build` folder.
 
 
 ## How it Works
