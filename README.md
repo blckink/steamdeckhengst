@@ -47,7 +47,7 @@ Once in the main menu, click the + button to add a handler. Create profiles if y
 
 ## Setup
 
-Run the `setup.sh` script to install required system packages such as `libarchive-dev` and to set up the Rust toolchain:
+Run the `setup.sh` script to install required system packages such as `libarchive-dev` and set up the Rust toolchain. The script works with `apt` or `pacman` depending on your distribution:
 
 ```bash
 ./setup.sh
