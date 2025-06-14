@@ -6,6 +6,8 @@ use std::sync::LazyLock;
 // TODO: read resources from some place other than execdir/res?
 pub static PATH_RES: LazyLock<PathBuf> =
     LazyLock::new(|| env::current_exe().unwrap().parent().unwrap().join("res"));
+/// Cached images downloaded at runtime
+pub static PATH_IMG_CACHE: LazyLock<PathBuf> = LazyLock::new(|| PATH_RES.join("images_cache"));
 pub static PATH_HOME: LazyLock<PathBuf> =
     LazyLock::new(|| PathBuf::from(env::var("HOME").unwrap()));
 pub static PATH_LOCAL_SHARE: LazyLock<PathBuf> = LazyLock::new(|| PATH_HOME.join(".local/share"));

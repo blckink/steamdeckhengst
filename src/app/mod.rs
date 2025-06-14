@@ -1,5 +1,3 @@
-mod app;
-mod config;
+pub mod config;
 
-pub use app::PartyApp;
 pub use config::PartyConfig;

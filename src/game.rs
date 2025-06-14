@@ -1,7 +1,7 @@
 use crate::handler::{Handler, install_handler_from_file, scan_handlers};
 use crate::paths::*;
 
-use eframe::egui::{self, ImageSource};
+
 use rfd::FileDialog;
 use serde_json::Value;
 use std::error::Error;
@@ -9,37 +9,17 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
 
+#[derive(Clone, Debug)]
 pub enum Game {
     Executable { path: PathBuf, filename: String },
     HandlerRef(Handler),
 }
 
-impl ToOwned for Game {
-    type Owned = Self;
-
-    fn to_owned(&self) -> Self::Owned {
-        match self {
-            Game::Executable { path, filename } => Game::Executable {
-                path: path.clone(),
-                filename: filename.clone(),
-            },
-            Game::HandlerRef(handler) => Game::HandlerRef(handler.clone()),
-        }
-    }
-}
 impl Game {
     pub fn name(&self) -> &str {
         match self {
             Game::Executable { filename, .. } => filename,
             Game::HandlerRef(handler) => handler.display(),
-        }
-    }
-    pub fn icon(&self) -> ImageSource {
-        match self {
-            Game::Executable { .. } => egui::include_image!("../res/executable_icon.png"),
-            Game::HandlerRef(handler) => {
-                format!("file://{}/icon.png", handler.path_handler.display()).into()
-            }
         }
     }
 }

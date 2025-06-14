@@ -7,7 +7,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Handler {
     // Members that are determined by context
     pub path_handler: PathBuf,
