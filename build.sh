@@ -1,7 +1,32 @@
 #!/bin/bash
+set -e
 
-cargo build --release && \
-rm -rf build/partydeck-rs
-mkdir -p build/ build/res && \
-cp target/release/partydeck-rs res/PartyDeckKWinLaunch.sh build/ && \
+# Build mode: default to 'release' unless overridden
+BUILD_MODE=${BUILD_MODE:-release}
+echo "📦 Building in $BUILD_MODE mode..."
+
+if [ "$BUILD_MODE" = "debug" ]; then
+    cargo build
+    BIN_PATH="target/debug/partydeck-rs"
+else
+    cargo build --release
+    BIN_PATH="target/release/partydeck-rs"
+fi
+
+# Verify binary exists
+if [ ! -f "$BIN_PATH" ]; then
+    echo "❌ Error: Binary not found at $BIN_PATH"
+    exit 1
+fi
+
+# Prepare build output directory
+echo "📁 Preparing build output..."
+rm -rf build/
+mkdir -p build/res
+
+# Copy binary and required assets
+cp "$BIN_PATH" build/partydeck-rs
+cp res/PartyDeckKWinLaunch.sh build/
 cp res/splitscreen_kwin.js build/res
+
+echo "✅ Build complete – files are in ./build"
