@@ -7,13 +7,13 @@ Think of **SteamDeckHengst** as the ribald stablehand for your Valve steed—sad
 ---
 
 <p align="center">
-    <img src=".github/assets/launcher.png" width="49%" />
+    <img src=".github/assets/launcher.png" width="98%" />
     <img src=".github/assets/gameplay.png" width="49%" />
     <img src=".github/assets/gameplay2.png" width="49%" />
-    <img src=".github/assets/gameplay3.png" width="49%" /></p>
+</p>
 
 > [!IMPORTANT]
-> This beast was originally tamed by the one and only wunnr—and then “enhanced” by me, a rookie still learning to hold the reins. Brace yourself for questionable design choices, mysterious security quirks, and the occasional wild workaround. If you’re a seasoned dev, your feedback could save us all from a code rodeo. 😂
+> This beast was originally tamed by the one and only [wunnr](https://github.com/wunnr) and then “enhanced” by me, a rookie still learning to hold the reins. Brace yourself for questionable design choices, mysterious security quirks, and the occasional wild workaround. If you’re a seasoned dev, your feedback could save us all from a code rodeo. 😂
 ## Features
 
 - Runs up to 4 instances of a game at a time and automatically fits each game window onto the screen
@@ -27,8 +27,6 @@ Think of **SteamDeckHengst** as the ribald stablehand for your Valve steed—sad
 - Works out of the box on SteamOS
 
 ## Installing & Usage
-
-Download the latest release [here](https://github.com/wunnr/partydeck-rs/releases) and extract it into a folder. Download game handlers [here](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL).
 
 ### SteamOS
 
@@ -65,6 +63,9 @@ export BUILD_MODE=debug
 
 If `BUILD_MODE` is omitted the release build is produced. The executable and data files are placed in the `build` folder.
 
+## Building
+
+Download game handlers [here](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL).
 
 ## How it Works
 
