@@ -1,4 +1,4 @@
-use crate::handler::{Handler, install_handler_from_file, scan_handlers};
+use crate::handler::{install_handler_from_file, scan_handlers, Handler};
 use crate::paths::*;
 
 use eframe::egui::{self, ImageSource};
@@ -38,7 +38,12 @@ impl Game {
         match self {
             Game::Executable { .. } => egui::include_image!("../res/executable_icon.png"),
             Game::HandlerRef(handler) => {
-                format!("file://{}/icon.png", handler.path_handler.display()).into()
+                let path = handler.path_handler.join("icon.png");
+                if path.exists() {
+                    format!("file://{}", path.display()).into()
+                } else {
+                    egui::include_image!("../res/icon.png")
+                }
             }
         }
     }

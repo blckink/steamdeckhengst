@@ -17,7 +17,7 @@ pub enum MenuPage {
     Settings,
     Profiles,
     Game,
-    Controllers,
+    Players,
 }
 
 pub struct PartyApp {
@@ -61,7 +61,7 @@ impl Default for PartyApp {
 impl eframe::App for PartyApp {
     fn raw_input_hook(&mut self, _ctx: &egui::Context, raw_input: &mut egui::RawInput) {
         match self.cur_page {
-            MenuPage::Controllers => self.handle_gamepad_players(),
+            MenuPage::Players => self.handle_gamepad_players(),
             _ => self.handle_gamepad_gui(raw_input),
         }
     }
@@ -76,7 +76,7 @@ impl eframe::App for PartyApp {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             self.display_top_panel(ui);
         });
-        if (self.cur_page != MenuPage::Games) && (self.cur_page != MenuPage::Controllers) {
+        if (self.cur_page != MenuPage::Games) && (self.cur_page != MenuPage::Players) {
             self.display_info_panel(ctx);
         }
         egui::CentralPanel::default().show(ctx, |ui| match self.cur_page {
@@ -92,8 +92,8 @@ impl eframe::App for PartyApp {
             MenuPage::Game => {
                 self.display_page_game(ui);
             }
-            MenuPage::Controllers => {
-                self.display_page_controllers(ui);
+            MenuPage::Players => {
+                self.display_page_players(ui);
             }
         });
         ctx.request_repaint_after(std::time::Duration::from_millis(33)); // 30 fps
@@ -109,11 +109,21 @@ impl PartyApp {
             {
                 self.cur_page = MenuPage::Games;
             }
-            if ui
-                .selectable_label(self.cur_page == MenuPage::Controllers, "Controllers")
-                .clicked()
-            {
-                self.cur_page = MenuPage::Controllers;
+            if self.cur_page == MenuPage::Games {
+                if ui.button("Add").clicked() {
+                    if let Err(err) = add_game() {
+                        println!("Couldn't add game: {err}");
+                        msg("Error", &format!("Couldn't add game: {err}"));
+                    }
+                    let dir_tmp = PATH_PARTY.join("tmp");
+                    if dir_tmp.exists() {
+                        let _ = std::fs::remove_dir_all(&dir_tmp);
+                    }
+                    self.games = scan_all_games();
+                }
+                if ui.button("Refresh").clicked() {
+                    self.games = scan_all_games();
+                }
             }
             if ui
                 .selectable_label(self.cur_page == MenuPage::Profiles, "Profiles")
@@ -131,6 +141,11 @@ impl PartyApp {
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button("Quit").clicked() {
                     ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                }
+                if ui.button("Rescan Pads").clicked() {
+                    self.players.clear();
+                    self.pads.clear();
+                    self.pads = scan_evdev_gamepads();
                 }
                 let version_label = match self.needs_update {
                     true => format!("v{} (Update Available)", env!("CARGO_PKG_VERSION")),
@@ -396,7 +411,7 @@ impl PartyApp {
             if ui.button("Play").clicked() {
                 self.players.clear();
                 self.profiles = scan_profiles(true);
-                self.cur_page = MenuPage::Controllers;
+                self.cur_page = MenuPage::Players;
             }
             if let HandlerRef(h) = cur_game!(self) {
                 ui.add(egui::Separator::default().vertical());
@@ -433,8 +448,8 @@ impl PartyApp {
         }
     }
 
-    fn display_page_controllers(&mut self, ui: &mut Ui) {
-        ui.heading("Controllers");
+    fn display_page_players(&mut self, ui: &mut Ui) {
+        ui.heading("Players");
         ui.separator();
 
         ui.horizontal(|ui| {
