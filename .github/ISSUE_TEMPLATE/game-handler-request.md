@@ -3,7 +3,7 @@ name: Game handler request
 about: Request a game to be added as a handler
 title: "[Handler request] (game name here)"
 labels: handler
-assignees: wunnr
+assignees: blckink
 
 ---
 

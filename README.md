@@ -27,7 +27,7 @@ A split-screen game launcher for Linux/SteamOS
 
 ## Installing & Usage
 
-Download the latest release [here](https://github.com/wunnr/partydeck-rs/releases) and extract it into a folder. Download game handlers [here](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL).
+Download the latest release [here](https://github.com/blckink/steamdeckhengst/releases) and extract it into a folder. Download game handlers [here](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL).
 
 ### SteamOS
 
@@ -80,7 +80,7 @@ PartyDeck uses a few software layers to provide a console-like split-screen gami
 
 - AppImages and Flatpaks are not supported yet for native Linux games. Handlers can only run regular executables inside folders.
 - "Console-like splitscreen experience" means single-screen and controllers only. Multi-monitor support is possible but will require a better understanding of the KWin Scripting API. Support for multiple keyboards and mice is also theoretically possible, but I'll have to look into how I would go about implementing it.
-- The launcher is built synchronously, meaning there isn't any visual indicators of progress or loading when things are happening, it will just freeze up. This obviously isn't ideal.
+- Most tasks still run synchronously and may freeze the UI. Update checks now execute in the background with a simple progress message.
 - Controller navigation support in the launcher is super primitive; I'd love to try making a more controller-friendly, Big-Picture-style UI in the future, but have no immediate plans for it.
 - Games using Goldberg might have trouble discovering LAN games from other devices. If this happens, you can try adding a firewall rule for port 47584. If connecting two Steam Decks through LAN, their hostnames should be changed from the default "steamdeck".
 
