@@ -22,11 +22,11 @@ fi
 # Prepare build output directory
 echo "📁 Preparing build output..."
 rm -rf build/
-mkdir -p build/res
+mkdir -p build
 
 # Copy binary and required assets
 cp "$BIN_PATH" build/partydeck-rs
+cp -r res build/
 cp res/PartyDeckKWinLaunch.sh build/
-cp res/splitscreen_kwin.js build/res
 
 echo "✅ Build complete – files are in ./build"
