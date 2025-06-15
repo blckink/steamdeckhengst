@@ -1,6 +1,6 @@
-<img src=".github/assets/icon.png" align="left" width="100" height="100">
+<p align="center"><img src=".github/assets/icon.png" align="center" width="250" height="250"></p>
 
-### SteamDeckHengst
+<h1 align="center">SteamDeckHengst</h1>
 
 Think of **SteamDeckHengst** as the ribald stablehand for your Valve steed—saddling up to four game instances at once and wrangling them into perfect split-screen formation. It wouldn’t exist without the barn-raising genius of [wunnr](https://github.com/wunnr) and his original [partydeck-rs](https://github.com/wunnr/partydeck-rs) masterpiece (he built the corral, I just added a few cheeky tweaks).
 
@@ -8,8 +8,9 @@ Think of **SteamDeckHengst** as the ribald stablehand for your Valve steed—sad
 
 <p align="center">
     <img src=".github/assets/launcher.png" width="49%" />
-    <img src=".github/assets/gameplay1.png" width="49%" />
-</p>
+    <img src=".github/assets/gameplay.png" width="49%" />
+    <img src=".github/assets/gameplay2.png" width="49%" />
+    <img src=".github/assets/gameplay3.png" width="49%" /></p>
 
 > [!IMPORTANT]
 > This beast was originally tamed by the one and only wunnr—and then “enhanced” by me, a rookie still learning to hold the reins. Brace yourself for questionable design choices, mysterious security quirks, and the occasional wild workaround. If you’re a seasoned dev, your feedback could save us all from a code rodeo. 😂
