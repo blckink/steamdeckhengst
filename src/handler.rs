@@ -143,8 +143,12 @@ impl Handler {
                 .unwrap_or_default(),
         };
 
-        if !handler.uid.chars().all(char::is_alphanumeric) {
-            return Err("uid must be alphanumeric!".into());
+        if !handler
+            .uid
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+        {
+            return Err("uid contains invalid characters".into());
         }
 
         handler.path_handler = json_path
@@ -257,8 +261,11 @@ pub fn install_handler_from_file(file: &PathBuf) -> Result<(), Box<dyn Error>> {
         .and_then(|v| v.as_str())
         .ok_or("No uid field found in handler.json")?;
 
-    if !uid.chars().all(char::is_alphanumeric) {
-        return Err("uid must be alphanumeric".into());
+    if !uid
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err("uid contains invalid characters".into());
     }
 
     copy_dir_recursive(&dir_tmp, &dir_handlers.join(uid), false, true)?;

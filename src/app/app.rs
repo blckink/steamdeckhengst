@@ -207,7 +207,10 @@ impl PartyApp {
                     if idx >= self.games.len() {
                         break;
                     }
-                    ui.vertical(|ui| {
+                    ui.allocate_ui_with_layout(
+                        egui::vec2(tile_w, tile_h + 20.0),
+                        egui::Layout::top_down(egui::Align::Center),
+                        |ui| {
                         let selected = self.selected_game == idx;
                         let img_src = match &self.games[idx] {
                             HandlerRef(h) if !h.img_paths.is_empty() => {
@@ -239,10 +242,9 @@ impl PartyApp {
                             self.selected_game = idx;
                             self.cur_page = MenuPage::Game;
                         }
-                        ui.vertical_centered(|ui| {
-                            ui.label(self.games[idx].name());
-                        });
-                    });
+                        ui.label(self.games[idx].name());
+                    },
+                    );
                     idx += 1;
                 }
             });
