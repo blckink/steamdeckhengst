@@ -5,6 +5,7 @@ mod input;
 mod launch;
 mod paths;
 mod util;
+mod task;
 
 use crate::app::*;
 use crate::paths::*;

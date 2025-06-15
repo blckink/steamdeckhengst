@@ -5,6 +5,7 @@ use crate::input::*;
 use crate::launch::{launch_executable, launch_from_handler};
 use crate::paths::*;
 use crate::util::*;
+use crate::task::Task;
 
 use dialog::DialogBox;
 use eframe::egui::{self, Key, Ui};
@@ -21,6 +22,7 @@ pub enum MenuPage {
 
 pub struct PartyApp {
     pub needs_update: bool,
+    pub update_check: Option<Task<bool>>,
     pub options: PartyConfig,
     pub cur_page: MenuPage,
     pub infotext: String,
@@ -40,7 +42,8 @@ macro_rules! cur_game {
 impl Default for PartyApp {
     fn default() -> Self {
         Self {
-            needs_update: check_for_partydeck_update(),
+            needs_update: false,
+            update_check: Some(Task::spawn(|| check_for_partydeck_update().unwrap_or(false))),
             options: load_cfg(),
             cur_page: MenuPage::Main,
             infotext: String::new(),
@@ -62,6 +65,12 @@ impl eframe::App for PartyApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        if let Some(task) = &self.update_check {
+            if let Some(res) = task.try_join() {
+                self.needs_update = res;
+                self.update_check = None;
+            }
+        }
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             self.display_top_panel(ui);
         });
@@ -139,14 +148,18 @@ impl PartyApp {
                     true => format!("v{} (Update Available)", env!("CARGO_PKG_VERSION")),
                     false => format!("v{}", env!("CARGO_PKG_VERSION")),
                 };
-                ui.hyperlink_to(
-                    version_label,
-                    "https://github.com/wunnr/partydeck-rs/releases",
-                );
+                if self.update_check.is_some() {
+                    ui.label("Checking for updates...");
+                } else {
+                    ui.hyperlink_to(
+                        version_label,
+                        "https://github.com/blckink/steamdeckhengst/releases",
+                    );
+                }
                 ui.add(egui::Separator::default().vertical());
                 ui.hyperlink_to(
                     "Open Source Licenses",
-                    "https://github.com/wunnr/partydeck-rs/tree/main?tab=License-2-ov-file",
+                    "https://github.com/blckink/steamdeckhengst/tree/main?tab=License-2-ov-file",
                 );
             });
         });
@@ -279,7 +292,7 @@ impl PartyApp {
         ui.label("If you have found this software useful, consider donating to support further development!");
         ui.hyperlink_to("Ko-fi", "https://ko-fi.com/wunner");
         ui.label("If you've encountered issues or want to suggest improvements, criticism and feedback are always appreciated!");
-        ui.hyperlink_to("GitHub", "https://github.com/wunnr/partydeck-rs");
+        ui.hyperlink_to("GitHub", "https://github.com/blckink/steamdeckhengst");
     }
 
     fn display_page_settings(&mut self, ui: &mut Ui) {
