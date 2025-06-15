@@ -295,6 +295,10 @@ impl PartyApp {
             &mut self.options.gamescope_sdl_backend,
             "Use SDL backend for Gamescope",
         );
+        let vertical_two_player_check = ui.checkbox(
+            &mut self.options.vertical_two_player,
+            "Vertical split for 2 players",
+        );
 
         if force_sdl2_check.hovered() {
             self.infotext = "Forces games to use the version of SDL2 included in the Steam Runtime. Only works on native Linux games, may fix problematic game controller support (incorrect mappings) in some games, may break others. If unsure, leave this unchecked.".to_string();
@@ -304,6 +308,9 @@ impl PartyApp {
         }
         if gamescope_sdl_backend_check.hovered() {
             self.infotext = "Runs gamescope sessions using the SDL backend. If unsure, leave this checked. If gamescope sessions only show a black screen or give an error (especially on Nvidia + Wayland), try disabling this.".to_string();
+        }
+        if vertical_two_player_check.hovered() {
+            self.infotext = "Toggle how two player sessions are arranged. Enabled = vertical split (stacked). Disabled = horizontal split (side by side).".to_string();
         }
 
         ui.horizontal(|ui| {
@@ -623,6 +630,7 @@ impl PartyApp {
         handler: &Handler,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let _ = save_cfg(&self.options);
+        log_info("Starting handler game launch");
 
         let mut guests = GUEST_NAMES.to_vec();
         for player in &mut self.players {
@@ -643,7 +651,12 @@ impl PartyApp {
         let cmd = launch_from_handler(handler, &self.pads, &self.players, &self.options)?;
         println!("\nCOMMAND:\n{}\n", cmd);
 
-        kwin_dbus_start_script(PATH_RES.join("splitscreen_kwin.js"))?;
+        let script = if self.options.vertical_two_player {
+            PATH_RES.join("splitscreen_kwin.js")
+        } else {
+            PATH_RES.join("splitscreen_kwin_horizontal.js")
+        };
+        kwin_dbus_start_script(script)?;
 
         std::process::Command::new("sh")
             .arg("-c")
@@ -651,6 +664,7 @@ impl PartyApp {
             .status()?;
 
         kwin_dbus_unload_script()?;
+        log_info("Handler game finished");
         remove_guest_profiles()?;
 
         Ok(())
@@ -658,10 +672,16 @@ impl PartyApp {
 
     fn start_exec_game(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
         let _ = save_cfg(&self.options);
+        log_info("Starting executable game launch");
 
         let cmd = launch_executable(path, &self.pads, &self.players, &self.options)?;
 
-        kwin_dbus_start_script(PATH_RES.join("splitscreen_kwin.js"))?;
+        let script = if self.options.vertical_two_player {
+            PATH_RES.join("splitscreen_kwin.js")
+        } else {
+            PATH_RES.join("splitscreen_kwin_horizontal.js")
+        };
+        kwin_dbus_start_script(script)?;
 
         std::process::Command::new("sh")
             .arg("-c")
@@ -669,6 +689,7 @@ impl PartyApp {
             .status()?;
 
         kwin_dbus_unload_script()?;
+        log_info("Executable game finished");
 
         Ok(())
     }

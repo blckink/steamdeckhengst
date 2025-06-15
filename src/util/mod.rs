@@ -3,6 +3,7 @@ mod filesystem;
 mod profiles;
 mod sys;
 mod updates;
+mod logger;
 
 // Re-export functions from profiles
 pub use profiles::{create_gamesave, create_profile, remove_guest_profiles, scan_profiles};
@@ -15,6 +16,8 @@ pub use sys::{
     get_instance_resolution, get_screen_resolution, kwin_dbus_start_script,
     kwin_dbus_unload_script, msg, yesno,
 };
+
+pub use logger::{log_error, log_info};
 
 // Re-export functions from updates
 pub use updates::{check_for_partydeck_update, update_goldberg_emu, update_umu_launcher};
