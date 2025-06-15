@@ -4,8 +4,8 @@ use crate::handler::*;
 use crate::input::*;
 use crate::launch::{launch_executable, launch_from_handler};
 use crate::paths::*;
-use crate::util::*;
 use crate::task::Task;
+use crate::util::*;
 
 use dialog::DialogBox;
 use eframe::egui::{self, Key, Ui};
@@ -13,7 +13,7 @@ use std::path::PathBuf;
 
 #[derive(Eq, PartialEq)]
 pub enum MenuPage {
-    Main,
+    Games,
     Settings,
     Profiles,
     Game,
@@ -43,9 +43,11 @@ impl Default for PartyApp {
     fn default() -> Self {
         Self {
             needs_update: false,
-            update_check: Some(Task::spawn(|| check_for_partydeck_update().unwrap_or(false))),
+            update_check: Some(Task::spawn(|| {
+                check_for_partydeck_update().unwrap_or(false)
+            })),
             options: load_cfg(),
-            cur_page: MenuPage::Main,
+            cur_page: MenuPage::Games,
             infotext: String::new(),
             pads: scan_evdev_gamepads(),
             players: Vec::new(),
@@ -74,18 +76,12 @@ impl eframe::App for PartyApp {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             self.display_top_panel(ui);
         });
-        egui::SidePanel::left("games_panel")
-            .resizable(false)
-            .exact_width(200.0)
-            .show(ctx, |ui| {
-                self.display_games_panel(ui);
-            });
-        if (self.cur_page != MenuPage::Main) && (self.cur_page != MenuPage::Players) {
+        if (self.cur_page != MenuPage::Games) && (self.cur_page != MenuPage::Players) {
             self.display_info_panel(ctx);
         }
         egui::CentralPanel::default().show(ctx, |ui| match self.cur_page {
-            MenuPage::Main => {
-                self.display_page_main(ui);
+            MenuPage::Games => {
+                self.display_page_games(ui);
             }
             MenuPage::Settings => {
                 self.display_page_settings(ui);
@@ -108,41 +104,48 @@ impl PartyApp {
     fn display_top_panel(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             if ui
-                .add(egui::Button::image_and_text(
-                    egui::include_image!("../../res/BTN_NORTH.png"),
-                    "⛭",
-                ))
+                .selectable_label(self.cur_page == MenuPage::Games, "My Games")
                 .clicked()
             {
-                self.cur_page = MenuPage::Settings;
+                self.cur_page = MenuPage::Games;
+            }
+            if self.cur_page == MenuPage::Games {
+                if ui.button("Add").clicked() {
+                    if let Err(err) = add_game() {
+                        println!("Couldn't add game: {err}");
+                        msg("Error", &format!("Couldn't add game: {err}"));
+                    }
+                    let dir_tmp = PATH_PARTY.join("tmp");
+                    if dir_tmp.exists() {
+                        let _ = std::fs::remove_dir_all(&dir_tmp);
+                    }
+                    self.games = scan_all_games();
+                }
+                if ui.button("Refresh").clicked() {
+                    self.games = scan_all_games();
+                }
             }
             if ui
-                .add(egui::Button::image_and_text(
-                    egui::include_image!("../../res/BTN_WEST.png"),
-                    "👥",
-                ))
+                .selectable_label(self.cur_page == MenuPage::Profiles, "Profiles")
                 .clicked()
             {
                 self.profiles = scan_profiles(false);
                 self.cur_page = MenuPage::Profiles;
             }
             if ui
-                .add(egui::Button::image_and_text(
-                    egui::include_image!("../../res/BTN_EAST.png"),
-                    "🏠",
-                ))
+                .selectable_label(self.cur_page == MenuPage::Settings, "Settings")
                 .clicked()
             {
-                self.cur_page = MenuPage::Main;
-            }
-            if ui.button("🎮 Rescan").clicked() {
-                self.players.clear();
-                self.pads.clear();
-                self.pads = scan_evdev_gamepads();
+                self.cur_page = MenuPage::Settings;
             }
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("❌ Quit").clicked() {
+                if ui.button("Quit").clicked() {
                     ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                }
+                if ui.button("Rescan Pads").clicked() {
+                    self.players.clear();
+                    self.pads.clear();
+                    self.pads = scan_evdev_gamepads();
                 }
                 let version_label = match self.needs_update {
                     true => format!("v{} (Update Available)", env!("CARGO_PKG_VERSION")),
@@ -162,35 +165,6 @@ impl PartyApp {
                     "https://github.com/blckink/steamdeckhengst/tree/main?tab=License-2-ov-file",
                 );
             });
-        });
-    }
-
-    fn display_games_panel(&mut self, ui: &mut Ui) {
-        ui.add_space(6.0);
-        ui.horizontal(|ui| {
-            ui.heading("Games");
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("➕").clicked() {
-                    if let Err(err) = add_game() {
-                        println!("Couldn't add game: {err}");
-                        msg("Error", &format!("Couldn't add game: {err}"));
-                    }
-                    let dir_tmp = PATH_PARTY.join("tmp");
-                    if dir_tmp.exists() {
-                        std::fs::remove_dir_all(&dir_tmp).unwrap();
-                    }
-                    self.games.clear();
-                    self.games = crate::game::scan_all_games();
-                }
-                if ui.button("🔄").clicked() {
-                    self.games.clear();
-                    self.games = crate::game::scan_all_games();
-                }
-            });
-        });
-        ui.separator();
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            self.display_game_list(ui);
         });
     }
 
@@ -220,79 +194,66 @@ impl PartyApp {
             });
     }
 
-    fn display_game_list(&mut self, ui: &mut Ui) {
-        let mut refresh_games = false;
-        for (i, game) in self.games.iter().enumerate() {
+    fn display_games_grid(&mut self, ui: &mut Ui) {
+        let tile_w = 220.0;
+        let tile_h = tile_w * 9.0 / 16.0;
+        let cols = ((ui.available_width() + 10.0) / (tile_w + 10.0))
+            .floor()
+            .max(1.0) as usize;
+        let mut idx = 0;
+        while idx < self.games.len() {
             ui.horizontal(|ui| {
-                ui.add(
-                    egui::Image::new(game.icon())
-                        .max_width(16.0)
-                        .corner_radius(2),
-                );
-                let btn = ui.selectable_value(&mut self.selected_game, i, game.name());
-                if btn.has_focus() {
-                    btn.scroll_to_me(None);
-                }
-                if btn.clicked() {
-                    self.cur_page = MenuPage::Game;
-                };
-
-                let popup_id = ui.make_persistent_id(format!("gamectx{}", i));
-
-                egui::popup::popup_below_widget(
-                    ui,
-                    popup_id,
-                    &btn,
-                    egui::popup::PopupCloseBehavior::CloseOnClick,
-                    |ui| {
-                        if ui.button("Remove").clicked() {
-                            if yesno(
-                                "Remove game?",
-                                &format!("Are you sure you want to remove {}?", game.name()),
-                            ) {
-                                if let Err(err) = remove_game(&self.games[i]) {
-                                    println!("Failed to remove game: {}", err);
-                                    msg("Error", &format!("Failed to remove game: {}", err));
+                for _ in 0..cols {
+                    if idx >= self.games.len() {
+                        break;
+                    }
+                    ui.allocate_ui_with_layout(
+                        egui::vec2(tile_w, tile_h + 20.0),
+                        egui::Layout::top_down(egui::Align::Center),
+                        |ui| {
+                        let selected = self.selected_game == idx;
+                        let img_src = match &self.games[idx] {
+                            HandlerRef(h) if !h.img_paths.is_empty() => {
+                                format!("file://{}", h.img_paths[0].display()).into()
+                            }
+                            HandlerRef(h) => {
+                                if let Some(appid) = &h.steam_appid {
+                                    format!("https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/{}/header.jpg", appid).into()
+                                } else {
+                                    self.games[idx].icon()
                                 }
                             }
-                            refresh_games = true;
+                            _ => self.games[idx].icon(),
+                        };
+                        let resp = ui.add(
+                            egui::Image::new(img_src)
+                                .fit_to_exact_size(egui::vec2(tile_w, tile_h))
+                                .sense(egui::Sense::click()),
+                        );
+                        if selected {
+                            ui.painter().rect_stroke(
+                                resp.rect,
+                                0.0,
+                                ui.visuals().selection.stroke,
+                                egui::StrokeKind::Inside,
+                            );
                         }
-                        if let HandlerRef(h) = game {
-                            if ui.button("Open Handler Folder").clicked() {
-                                if let Err(_) = std::process::Command::new("sh")
-                                    .arg("-c")
-                                    .arg(format!("xdg-open {}", h.path_handler.display()))
-                                    .status()
-                                {
-                                    msg("Error", "Couldn't open handler folder!");
-                                }
-                            }
+                        if resp.clicked() {
+                            self.selected_game = idx;
+                            self.cur_page = MenuPage::Game;
                         }
+                        ui.label(self.games[idx].name());
                     },
-                );
-
-                if btn.secondary_clicked() {
-                    ui.memory_mut(|mem| mem.toggle_popup(popup_id));
+                    );
+                    idx += 1;
                 }
             });
-        }
-        // Hacky workaround to avoid borrowing conflicts from inside the loop
-        if refresh_games {
-            self.games.clear();
-            self.games = scan_all_games();
+            ui.add_space(10.0);
         }
     }
 
-    fn display_page_main(&mut self, ui: &mut Ui) {
-        ui.heading("Welcome to PartyDeck");
-        ui.separator();
-        ui.label("Press SELECT/BACK or Tab to unlock gamepad navigation.");
-        ui.label("PartyDeck is in the very early stages of development; as such, you will likely encounter bugs, issues, and strange design decisions.");
-        ui.label("For debugging purposes, it's recommended to read terminal output (stdout) for further information on errors.");
-        ui.label("If you have found this software useful, consider donating to support further development!");
-        ui.hyperlink_to("Ko-fi", "https://ko-fi.com/wunner");
-        ui.label("If you've encountered issues or want to suggest improvements, criticism and feedback are always appreciated!");
-        ui.hyperlink_to("GitHub", "https://github.com/blckink/steamdeckhengst");
+    fn display_page_games(&mut self, ui: &mut Ui) {
+        self.display_games_grid(ui);
     }
 
     fn display_page_settings(&mut self, ui: &mut Ui) {
@@ -539,7 +500,7 @@ impl PartyApp {
                     key = Some(Key::Enter);
                 }
                 Some(PadButton::BBtn) => {
-                    self.cur_page = MenuPage::Main;
+                    self.cur_page = MenuPage::Games;
                 }
                 Some(PadButton::XBtn) => {
                     self.profiles = scan_profiles(false);
@@ -596,7 +557,7 @@ impl PartyApp {
                 }
                 Some(PadButton::BBtn) => {
                     if self.players.len() == 0 {
-                        self.cur_page = MenuPage::Main;
+                        self.cur_page = MenuPage::Games;
                     }
                 }
                 _ => {}
@@ -635,7 +596,7 @@ impl PartyApp {
                 }
             }
         }
-        self.cur_page = MenuPage::Main;
+        self.cur_page = MenuPage::Games;
     }
 
     pub fn start_handler_game(
