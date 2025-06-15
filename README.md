@@ -23,6 +23,7 @@ A split-screen game launcher for Linux/SteamOS
 - Works with most game controllers without any additional setup, drivers, or third-party software
 - Uses sandboxing software to mask out controllers so that each game instance only detects the controller assigned to it, preventing input interference
 - Profile support allows each player to have their own persistent save data, settings, and stats for games
+- Toggle how 2-player mode splits the screen: top-and-bottom or side-by-side. We can't fix sibling rivalry, but at least the screen will behave.
 - Works out of the box on SteamOS
 
 ## Installing & Usage
