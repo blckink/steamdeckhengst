@@ -83,7 +83,7 @@ impl eframe::App for PartyApp {
             .resizable(false)
             .exact_width(side_w)
             .frame(
-                egui::Frame::none()
+                egui::Frame::new()
                     .fill(Color32::from_gray(40))
                     .inner_margin(egui::Margin {
                         left: 15,
@@ -98,7 +98,7 @@ impl eframe::App for PartyApp {
 
         egui::TopBottomPanel::top("nav_bar")
             .exact_height(60.0)
-            .frame(egui::Frame::none().fill(Color32::from_gray(40)))
+            .frame(egui::Frame::new().fill(Color32::from_gray(40)))
             .show(ctx, |ui| {
                 self.display_nav_bar(ui, ctx);
             });
@@ -152,7 +152,7 @@ impl PartyApp {
                 );
             });
             ui.add_space(6.0);
-            egui::Frame::none()
+            egui::Frame::new()
                 .fill(Color32::from_gray(50))
                 .inner_margin(egui::Margin::same(2))
                 .show(ui, |ui| {
@@ -315,6 +315,31 @@ impl PartyApp {
                                 .fit_to_exact_size(egui::vec2(tile_w, tile_h))
                                 .sense(egui::Sense::click()),
                         );
+                        let del_rect = egui::Rect::from_min_size(
+                            resp.rect.right_top() - egui::vec2(20.0, 0.0),
+                            egui::vec2(20.0, 20.0),
+                        );
+                        let del_resp = ui.put(
+                            del_rect,
+                            egui::Button::new(RichText::new("x").color(Color32::WHITE))
+                                .fill(Color32::from_rgba_unmultiplied(0, 0, 0, 128))
+                                .stroke(egui::Stroke::NONE),
+                        );
+                        if del_resp.clicked() {
+                            if yesno(
+                                "Remove Game?",
+                                &format!("Remove {}?", self.games[idx].name()),
+                            ) {
+                                if let Err(err) = remove_game(&self.games[idx]) {
+                                    msg("Error", &format!("Couldn't remove game: {err}"));
+                                }
+                                self.games = scan_all_games();
+                                if self.selected_game >= self.games.len() {
+                                    self.selected_game =
+                                        self.games.len().saturating_sub(1);
+                                }
+                            }
+                        }
                         if selected {
                             ui.painter().rect_stroke(
                                 resp.rect,
@@ -338,7 +363,7 @@ impl PartyApp {
     }
 
     fn display_page_games(&mut self, ui: &mut Ui) {
-        egui::Frame::none()
+        egui::Frame::new()
             .inner_margin(egui::Margin {
                 left: 20,
                 right: 20,
@@ -366,7 +391,7 @@ impl PartyApp {
 
     fn display_page_settings(&mut self, ui: &mut Ui) {
         self.infotext.clear();
-        egui::Frame::none()
+        egui::Frame::new()
             .inner_margin(egui::Margin { left: 20, right: 20, top: 20, bottom: 0 })
             .show(ui, |ui| {
                 ui.heading("Settings");
@@ -475,7 +500,7 @@ impl PartyApp {
     }
 
     fn display_page_profiles(&mut self, ui: &mut Ui) {
-        egui::Frame::none()
+        egui::Frame::new()
             .inner_margin(egui::Margin {
                 left: 20,
                 right: 20,
@@ -528,7 +553,7 @@ impl PartyApp {
     }
 
     fn display_page_game(&mut self, ui: &mut Ui) {
-        egui::Frame::none()
+        egui::Frame::new()
             .inner_margin(egui::Margin {
                 left: 20,
                 right: 20,
@@ -589,7 +614,7 @@ impl PartyApp {
     }
 
     fn display_page_players(&mut self, ui: &mut Ui) {
-        egui::Frame::none()
+        egui::Frame::new()
             .inner_margin(egui::Margin {
                 left: 20,
                 right: 20,

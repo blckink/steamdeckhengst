@@ -144,10 +144,9 @@ pub fn add_game() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn remove_game(game: &Game) -> Result<(), Box<dyn Error>> {
+pub fn remove_game(game: &Game) -> Result<(), Box<dyn std::error::Error>> {
     match game {
         Game::Executable { path, .. } => {
-            // Load current paths.json
             let mut json = if let Ok(file) = File::open(PATH_PARTY.join("paths.json")) {
                 serde_json::from_reader(BufReader::new(file))
                     .unwrap_or(Value::Object(serde_json::Map::new()))
@@ -155,22 +154,17 @@ pub fn remove_game(game: &Game) -> Result<(), Box<dyn Error>> {
                 Value::Object(serde_json::Map::new())
             };
 
-            // Remove the file path from the executables array
             if let Some(executables) = json[".executables"].as_array_mut() {
                 let file_path = path.to_string_lossy().to_string();
                 executables.retain(|p| p.as_str() != Some(&file_path));
             }
 
-            // Save the updated paths.json
             let updated_data = serde_json::to_string_pretty(&json)?;
-
             std::fs::write(PATH_PARTY.join("paths.json"), updated_data)?;
         }
-
         Game::HandlerRef(h) => {
             std::fs::remove_dir_all(h.path_handler.clone())?;
         }
     }
-
     Ok(())
 }
