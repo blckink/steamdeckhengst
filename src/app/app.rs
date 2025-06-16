@@ -8,7 +8,7 @@ use crate::task::Task;
 use crate::util::*;
 
 use dialog::DialogBox;
-use eframe::egui::{self, Color32, Key, RichText, TextStyle, Ui};
+use eframe::egui::{self, Color32, Key, RichText, Ui};
 use egui_commonmark::{CommonMarkCache, CommonMarkViewer};
 use regex::Regex;
 use std::path::PathBuf;
@@ -82,28 +82,14 @@ impl eframe::App for PartyApp {
         egui::SidePanel::left("left_panel")
             .resizable(false)
             .exact_width(side_w)
-            .frame(
-                egui::Frame::default()
-                    .fill(Color32::from_gray(40))
-                    .stroke(egui::Stroke::NONE)
-                    .inner_margin(egui::Margin {
-                        left: 15,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                    }),
-            )
+            .frame(egui::Frame::default().fill(Color32::from_gray(40)))
             .show(ctx, |ui| {
                 self.display_left_panel(ui);
             });
 
         egui::TopBottomPanel::top("nav_bar")
             .exact_height(60.0)
-            .frame(
-                egui::Frame::default()
-                    .fill(Color32::from_gray(40))
-                    .stroke(egui::Stroke::NONE),
-            )
+            .frame(egui::Frame::default().fill(Color32::from_gray(40)))
             .show(ctx, |ui| {
                 self.display_nav_bar(ui, ctx);
             });
@@ -156,13 +142,8 @@ impl PartyApp {
                         .max_height(60.0),
                 );
             });
-            ui.add_space(6.0);
-            egui::Frame::none()
-                .fill(Color32::from_gray(50))
-                .inner_margin(egui::Margin::same(2))
-                .show(ui, |ui| {
-                    ui.label(RichText::new("GAMEPADS:").text_style(TextStyle::Name("H3".into())));
-                });
+            ui.separator();
+            ui.label("Gamepads:");
             if self.pads.is_empty() {
                 ui.label("No Gamepads detected");
             } else {
@@ -175,12 +156,7 @@ impl PartyApp {
                     });
                 }
             }
-            if ui
-                .add(egui::Button::new(
-                    RichText::new("Rescan").text_style(TextStyle::Body),
-                ))
-                .clicked()
-            {
+            if ui.button("Rescan").clicked() {
                 self.players.clear();
                 self.pads.clear();
                 self.pads = scan_evdev_gamepads();
@@ -201,10 +177,8 @@ impl PartyApp {
             ];
             for (page, label) in pages {
                 let resp = ui.add(
-                    egui::Label::new(
-                        RichText::new(label).text_style(egui::TextStyle::Name("Nav".into())),
-                    )
-                    .sense(egui::Sense::click()),
+                    egui::Label::new(RichText::new(label).text_style(egui::TextStyle::Button))
+                        .sense(egui::Sense::click()),
                 );
                 if self.cur_page == page {
                     let stroke = egui::Stroke::new(1.0, Color32::from_rgb(0, 177, 227));
@@ -225,20 +199,12 @@ impl PartyApp {
             }
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                let quit = ui.add(
-                    egui::Label::new(
-                        RichText::new("QUIT").text_style(egui::TextStyle::Name("Nav".into())),
-                    )
-                    .sense(egui::Sense::click()),
-                );
-                if quit.clicked() {
+                if ui.button("Quit").clicked() {
                     ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
                 let resp = ui.add(
-                    egui::Label::new(
-                        RichText::new("ABOUT").text_style(egui::TextStyle::Name("Nav".into())),
-                    )
-                    .sense(egui::Sense::click()),
+                    egui::Label::new(RichText::new("ABOUT").text_style(egui::TextStyle::Button))
+                        .sense(egui::Sense::click()),
                 );
                 if self.cur_page == MenuPage::About {
                     let stroke = egui::Stroke::new(1.0, Color32::from_rgb(0, 177, 227));

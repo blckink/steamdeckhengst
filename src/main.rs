@@ -22,12 +22,6 @@ fn setup_style(ctx: &egui::Context) {
             "../res/DejaVuSans.ttf"
         ))),
     );
-    fonts.font_data.insert(
-        "dejavu-bold".to_owned(),
-        std::sync::Arc::new(FontData::from_static(include_bytes!(
-            "../res/DejaVuSans-Bold.ttf"
-        ))),
-    );
     fonts
         .families
         .entry(FontFamily::Proportional)
@@ -38,11 +32,6 @@ fn setup_style(ctx: &egui::Context) {
         .entry(FontFamily::Monospace)
         .or_default()
         .insert(0, "dejavu".to_owned());
-    fonts
-        .families
-        .entry(FontFamily::Name("bold".into()))
-        .or_default()
-        .insert(0, "dejavu-bold".to_owned());
     ctx.set_fonts(fonts);
 
     let mut style = Style::default();
@@ -52,25 +41,16 @@ fn setup_style(ctx: &egui::Context) {
     style.visuals.selection.bg_fill = Color32::from_rgb(130, 100, 190);
     style.spacing.button_padding = egui::vec2(12.0, 8.0);
     style.spacing.item_spacing = egui::vec2(10.0, 8.0);
-
-    style.text_styles.insert(
-        TextStyle::Button,
-        FontId::new(14.0, FontFamily::Proportional),
-    );
     style.text_styles.insert(
         TextStyle::Heading,
-        FontId::new(20.0, FontFamily::Name("bold".into())),
+        FontId::new(22.0, FontFamily::Proportional),
     );
     style
         .text_styles
-        .insert(TextStyle::Body, FontId::new(14.0, FontFamily::Proportional));
+        .insert(TextStyle::Body, FontId::new(13.0, FontFamily::Proportional));
     style.text_styles.insert(
-        TextStyle::Name("H3".into()),
-        FontId::new(16.0, FontFamily::Name("bold".into())),
-    );
-    style.text_styles.insert(
-        TextStyle::Name("Nav".into()),
-        FontId::new(26.0, FontFamily::Name("bold".into())),
+        TextStyle::Button,
+        FontId::new(14.0, FontFamily::Proportional),
     );
     ctx.set_style(style);
 }
