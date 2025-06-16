@@ -15,7 +15,34 @@ use eframe::egui::{
 };
 
 fn setup_style(ctx: &egui::Context) {
-    let fonts = FontDefinitions::default();
+    let mut fonts = FontDefinitions::default();
+    fonts.font_data.insert(
+        "dejavu".to_owned(),
+        std::sync::Arc::new(FontData::from_static(include_bytes!(
+            "../res/DejaVuSans.ttf"
+        ))),
+    );
+    fonts.font_data.insert(
+        "dejavu-bold".to_owned(),
+        std::sync::Arc::new(FontData::from_static(include_bytes!(
+            "../res/DejaVuSans-Bold.ttf"
+        ))),
+    );
+    fonts
+        .families
+        .entry(FontFamily::Proportional)
+        .or_default()
+        .insert(0, "dejavu".to_owned());
+    fonts
+        .families
+        .entry(FontFamily::Monospace)
+        .or_default()
+        .insert(0, "dejavu".to_owned());
+    fonts
+        .families
+        .entry(FontFamily::Name("bold".into()))
+        .or_default()
+        .insert(0, "dejavu-bold".to_owned());
     ctx.set_fonts(fonts);
 
     let mut style = Style::default();
