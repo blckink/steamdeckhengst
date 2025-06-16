@@ -19,6 +19,13 @@ pub struct Gamepad {
     path: String,
     dev: Device,
 }
+
+pub enum PadType {
+    Xbox,
+    PlayStation,
+    Nintendo,
+    Unknown,
+}
 pub enum PadButton {
     Left,
     Right,
@@ -45,6 +52,39 @@ impl Gamepad {
     }
     pub fn path(&self) -> &str {
         &self.path
+    }
+
+    pub fn pad_type(&self) -> PadType {
+        match self.dev.input_id().vendor() {
+            0x045e => PadType::Xbox,
+            0x054c => PadType::PlayStation,
+            0x057e => PadType::Nintendo,
+            _ => PadType::Unknown,
+        }
+    }
+
+    pub fn event_id(&self) -> Option<&str> {
+        self.path.rsplit_once("event").map(|(_, id)| id)
+    }
+
+    pub fn battery_percent(&self) -> Option<u8> {
+        let name = std::path::Path::new(&self.path)
+            .file_name()
+            .and_then(|p| p.to_str())?;
+        let mut sys_path = std::path::PathBuf::from("/sys/class/power_supply");
+        for entry in std::fs::read_dir(&sys_path).ok()? {
+            let entry = entry.ok()?;
+            if let Ok(content) = std::fs::read_to_string(entry.path().join("uevent")) {
+                if content.contains(name) {
+                    if let Ok(cap) = std::fs::read_to_string(entry.path().join("capacity")) {
+                        if let Ok(val) = cap.trim().parse::<u8>() {
+                            return Some(val);
+                        }
+                    }
+                }
+            }
+        }
+        None
     }
     pub fn poll(&mut self) -> Option<PadButton> {
         let mut btn: Option<PadButton> = None;
