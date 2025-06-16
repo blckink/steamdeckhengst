@@ -1,3 +1,4 @@
 /target
 /build
 handler.json
+res/*.ttf

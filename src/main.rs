@@ -10,6 +10,50 @@ mod util;
 use crate::app::*;
 use crate::paths::*;
 use crate::util::*;
+use eframe::egui::{
+    self, Color32, FontData, FontDefinitions, FontFamily, FontId, Style, TextStyle, Visuals,
+};
+
+fn setup_style(ctx: &egui::Context) {
+    let mut fonts = FontDefinitions::default();
+    fonts.font_data.insert(
+        "dejavu".to_owned(),
+        std::sync::Arc::new(FontData::from_static(include_bytes!(
+            "../res/DejaVuSans.ttf"
+        ))),
+    );
+    fonts
+        .families
+        .entry(FontFamily::Proportional)
+        .or_default()
+        .insert(0, "dejavu".to_owned());
+    fonts
+        .families
+        .entry(FontFamily::Monospace)
+        .or_default()
+        .insert(0, "dejavu".to_owned());
+    ctx.set_fonts(fonts);
+
+    let mut style = Style::default();
+    style.visuals = Visuals::dark();
+    style.visuals.widgets.active.bg_fill = Color32::from_rgb(80, 60, 120);
+    style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(100, 80, 150);
+    style.visuals.selection.bg_fill = Color32::from_rgb(130, 100, 190);
+    style.spacing.button_padding = egui::vec2(12.0, 8.0);
+    style.spacing.item_spacing = egui::vec2(10.0, 8.0);
+    style.text_styles.insert(
+        TextStyle::Heading,
+        FontId::new(26.0, FontFamily::Proportional),
+    );
+    style
+        .text_styles
+        .insert(TextStyle::Body, FontId::new(18.0, FontFamily::Proportional));
+    style.text_styles.insert(
+        TextStyle::Button,
+        FontId::new(20.0, FontFamily::Proportional),
+    );
+    ctx.set_style(style);
+}
 
 fn main() -> eframe::Result {
     std::fs::create_dir_all(PATH_PARTY.join("gamesyms"))
@@ -81,6 +125,7 @@ fn main() -> eframe::Result {
             // This gives us image support:
             egui_extras::install_image_loaders(&cc.egui_ctx);
             cc.egui_ctx.set_zoom_factor(scale);
+            setup_style(&cc.egui_ctx);
             Ok(Box::<PartyApp>::default())
         }),
     )
