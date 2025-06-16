@@ -1,97 +1,151 @@
-<p align="center"><img src=".github/assets/icon.png" align="center" width="250" height="250"></p>
+<table>
+  <tr>
+    <td width="260">
+      <img src=".github/assets/sdh.svg" width="260" height="260" />
+    </td>
+    <td>
+      <h1>SteamDeckHengst</h1>
+      <em><strong>“Tames your games. Wrangles your inputs. Rides splitscreens like a pro.”</strong></em><br />
+      SteamDeckHengst is the rowdy stablehand to your Valve stallion – launching up to <strong>four</strong> simultaneous game instances and splitting your screen like a Texas rodeo. <br />
+      Based on <a href="https://github.com/wunnr/partydeck-rs">partydeck-rs</a> by <strong>wunnr</strong> – I just gave it spurs and attitude.
+    </td>
+  </tr>
+</table>
 
-<h1 align="center">SteamDeckHengst</h1>
+---
 
-Think of **SteamDeckHengst** as the ribald stablehand for your Valve steed—saddling up to four game instances at once and wrangling them into perfect split-screen formation. It wouldn’t exist without the barn-raising genius of [wunnr](https://github.com/wunnr) and his original [partydeck-rs](https://github.com/wunnr/partydeck-rs) masterpiece (he built the corral, I just added a few cheeky tweaks).
+## 🧪 TL;DR Features
+
+- 🧩 Launch up to **4** simultaneous game instances  
+- 🖥️ Auto-tiles games in split-screen (KWin + Gamescope)  
+- 🎮 Full controller masking with per-instance isolation  
+- 📂 Profiles for saves, settings, stats – one per player  
+- 🕹️ Linux-native + Proton support  
+- 🔗 LAN multiplayer via Goldberg Steam Emu  
+- 🔀 Toggle 2-player layout: side-by-side or top-and-bottom  
+- 🧼 No extra drivers needed – works out of the box on SteamOS  
 
 ---
 
 <p align="center">
-    <img src=".github/assets/launcher.png" width="98%" />
-    <img src=".github/assets/gameplay.png" width="49%" />
-    <img src=".github/assets/gameplay2.png" width="49%" />
+  <img src=".github/assets/launcher.png" width="90%" />
+  <img src=".github/assets/gameplay.png" width="49%" />
+  <img src=".github/assets/gameplay2.png" width="49%" />
 </p>
 
-> [!IMPORTANT]
-> This beast was originally tamed by the one and only [wunnr](https://github.com/wunnr) and then “enhanced” by me, a rookie still learning to hold the reins. Brace yourself for questionable design choices, mysterious security quirks, and the occasional wild workaround. If you’re a seasoned dev, your feedback could save us all from a code rodeo. 😂
-## Features
+---
 
-- Runs up to 4 instances of a game at a time and automatically fits each game window onto the screen
-- Supports native Linux games as well as Windows games through Proton
-- Handler system that tells the launcher how to handle game files, meaning very little manual setup is required
-- Steam multiplayer API is emulated, allowing for multiple instances of Steam games
-- Works with most game controllers without any additional setup, drivers, or third-party software
-- Uses sandboxing software to mask out controllers so that each game instance only detects the controller assigned to it, preventing input interference
-- Profile support allows each player to have their own persistent save data, settings, and stats for games
-- Toggle how 2-player mode splits the screen: top-and-bottom or side-by-side. We can't fix sibling rivalry, but at least the screen will behave.
-- Works out of the box on SteamOS
+## 🚀 Quickstart
 
-## Installing & Usage
+### SteamOS (3.7.0+)
 
-### SteamOS
+1. Launch in Desktop Mode:
+   ```bash
+   partydeck-rs
+   ```
 
-SteamOS includes all of PartyDeck's dependencies, but you will need to be on SteamOS 3.7.0 or above for the splitscreen script to work.
-
-If you're in desktop mode, simply run `partydeck-rs`. To use PartyDeck in Gaming Mode, add the script `PartyDeckKWinLaunch.sh` as a non-Steam game by right-clicking that file and selecting "Add to Steam". This is a simple script that launches a KWin session from within Gaming Mode, then runs PartyDeck inside of that session. Then, go into the properties of the non-Steam game and disable Steam Input.
+2. Gaming Mode?  
+   Add `PartyDeckKWinLaunch.sh` as a non-Steam game and disable Steam Input. That’s it.
 
 ### Desktop Linux
 
-You'll need to install KDE Plasma, Gamescope, and Bubblewrap using your distro's package manager. Then, while in a KDE Plasma session, run `partydeck-rs` to get started. If you're running Steam, make sure none of the controllers are using a Steam Input desktop layout, as Steam Input causes issues such as duplicate controllers being detected.
+1. Install KDE Plasma, Gamescope, Bubblewrap:
+   ```bash
+   # pacman
+   sudo pacman -S gamescope bubblewrap
 
-### Getting Started
+   # or apt
+   sudo apt install gamescope bubblewrap
+   ```
 
-On first launch, the app will automatically download UMU Launcher and Goldberg Steam Emu. This may take a while depending on your download speed, but it only needs to be done once.
+2. Then:
+   ```bash
+   partydeck-rs
+   ```
 
-Once in the main menu, click the + button to add a handler. Create profiles if you want to store save data, and have a look through the settings menu.
+3. Disable Steam Input layouts for controllers.
 
-## Setup
+---
 
-Run the `setup.sh` script to install required system packages such as `libarchive-dev` and set up the Rust toolchain. The script works with `apt` or `pacman` depending on your distribution:
+## 🛠️ Setup & Build
 
 ```bash
-./setup.sh
-```
+./setup.sh       # installs rust + system dependencies
+./build.sh       # builds the project (release by default)
 
-## Building
-
-After the setup script has finished, clone the repo and run `build.sh` to build the project. The script defaults to a release build, but you can set `BUILD_MODE=debug` for a debug build:
-
-```bash
+# Debug mode (optional):
 export BUILD_MODE=debug
 ./build.sh
 ```
 
-If `BUILD_MODE` is omitted the release build is produced. The executable and data files are placed in the `build` folder.
+Result: Everything ends up in `/build`.
 
-## Building
+---
 
-Download game handlers [here](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL).
+## 📦 Game Handlers
 
-## How it Works
+You'll need these for game launching and sandboxing:  
+👉 [Download from Proton Drive](https://drive.proton.me/urls/D9HBKM18YR#zG8XC8yVy9WL)
 
-PartyDeck uses a few software layers to provide a console-like split-screen gaming experience:
+---
 
-- **KWin Session:** This KWin Session displays all running game instances and runs a script to automatically resize and reposition each Gamescope window.
-- **Gamescope:** Contains each instance of the game to its own window. Also has the neat side effect of receiving controller input even when the window is not currently active, meaning multiple Gamescope instances can all receive input simultaneously
-- **Bubblewrap:** Uses bindings to mask out evdev input files from the instances, so each instance only receives input from one specific controller. Also uses directory binding to give each player their own save data and settings within the games.
-- **Runtime (Steam Runtime/Proton):** If needed, the app can run native Linux games through a Steam Runtime (currently, 1.0 (scout) and 2.0 (soldier) are supported) for better compatibility. Windows games are launched through UMU Launcher
-- **Goldberg Steam Emu:** On games that use the Steam API for multiplayer, Goldberg is used to allow the game instances to connect to each other, as well as other devices running on the same LAN.
-- **And finally, the game itself.**
+## 🧠 How It Works
 
-## Known Issues, Limitations and To-dos
+| Layer | Description |
+|-------|-------------|
+| **KWin Session** | Custom session for window orchestration |
+| **Gamescope** | Renders & resizes each game instance |
+| **Bubblewrap** | Masks inputs + binds profile-specific data |
+| **UMU Launcher** | Wraps Proton to launch Windows games |
+| **Goldberg Steam Emu** | Emulates Steam multiplayer locally |
+| **You** | Brave user, probably fighting 3 friends for one screen |
 
-- AppImages and Flatpaks are not supported yet for native Linux games. Handlers can only run regular executables inside folders.
-- "Console-like splitscreen experience" means single-screen and controllers only. Multi-monitor support is possible but will require a better understanding of the KWin Scripting API. Support for multiple keyboards and mice is also theoretically possible, but I'll have to look into how I would go about implementing it.
-- The launcher is built synchronously, meaning there isn't any visual indicators of progress or loading when things are happening, it will just freeze up. This obviously isn't ideal.
-- Controller navigation support in the launcher is super primitive; I'd love to try making a more controller-friendly, Big-Picture-style UI in the future, but have no immediate plans for it.
-- Games using Goldberg might have trouble discovering LAN games from other devices. If this happens, you can try adding a firewall rule for port 47584. If connecting two Steam Decks through LAN, their hostnames should be changed from the default "steamdeck".
+---
 
-## Credits/Thanks
+## 🧨 Known Issues
 
-- MrGoldberg & Detanup01 for [Goldberg Steam Emu](https://github.com/Detanup01/gbe_fork/)
-- GloriousEggroll and the rest of the contributors for [UMU Launcher](https://github.com/Open-Wine-Components/umu-launcher)
-- Inspired by [Tau5's Coop-on-Linux](https://github.com/Tau5/Co-op-on-Linux) and [Syntrait's Splinux](https://github.com/Syntrait/splinux)
-- Talos91 and the rest of the Splitscreen.me team for [Nucleus Coop](https://github.com/SplitScreen-Me/splitscreenme-nucleus), and for helping with handler creation
+- 🛑 No Flatpak/AppImage support (yet)  
+- 🧊 UI freezes during heavy loading – no spinner, no mercy  
+- 👀 No multi-monitor support (would need deep KWin magic)  
+- 🎮 Primitive controller UI navigation  
+- 🔥 LAN discovery sometimes fails → open port `47584`  
 
-## Disclaimer
-This software has been created purely for the purposes of academic research. It is not intended to be used to attack other systems. Project maintainers are not responsible or liable for misuse of the software. Use responsibly.
+---
+
+## 🗺️ Roadmap
+
+- [ ] Fully controller-navigable “Big Picture”-style UI  
+- [ ] UI loading indicators / async progress feedback  
+- [ ] Multi-monitor + multi-keyboard/mouse support  
+- [ ] Central handler repo & browser  
+- [ ] In-app update mechanism  
+
+---
+
+## 🤝 Credits
+
+- 🛠️ [wunnr](https://github.com/wunnr) – partydeck-rs mastermind  
+- 🧠 [MrGoldberg](https://github.com/Detanup01/gbe_fork) – Steam API wizardry  
+- 🍷 [GloriousEggroll](https://github.com/Open-Wine-Components/umu-launcher) – Proton magic  
+- 🧩 [Tau5](https://github.com/Tau5/Co-op-on-Linux) & [Syntrait](https://github.com/Syntrait/splinux)  
+- 🧃 [SplitScreen.me](https://github.com/SplitScreen-Me/splitscreenme-nucleus) – Handler inspiration  
+
+---
+
+## 📜 License
+
+TBD – choose wisely (MIT or GPL recommended).
+
+---
+
+## ⚠️ Disclaimer
+
+This software was created for academic tinkering and curious hacking. Do not use it to break things. If you do, don't blame the stablehand.
+
+---
+
+## 💌 Contribute
+
+Pull requests welcome.  
+If you find a bug, feel free to submit an issue – or better yet, a fix.  
+Bonus points if your commit messages are funny.
