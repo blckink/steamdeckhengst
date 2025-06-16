@@ -497,11 +497,11 @@ impl PartyApp {
         ui.heading("About");
         ui.separator();
         ui.horizontal(|ui| {
-            ui.image(egui::include_image!("../.github/assets/sdh.svg"));
+            ui.image(egui::include_image!("../../.github/assets/sdh.svg"));
             ui.label(format!("Version: v{}", env!("CARGO_PKG_VERSION")));
         });
         ui.separator();
-        let readme = include_str!("../README.md");
+        let readme = include_str!("../../README.md");
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.label(readme);
         });
