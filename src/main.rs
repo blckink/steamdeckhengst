@@ -55,22 +55,22 @@ fn setup_style(ctx: &egui::Context) {
 
     style.text_styles.insert(
         TextStyle::Button,
-        FontId::new(14.0, FontFamily::Proportional),
+        FontId::new(12.0, FontFamily::Proportional),
     );
     style.text_styles.insert(
         TextStyle::Heading,
-        FontId::new(20.0, FontFamily::Name("bold".into())),
+        FontId::new(16.0, FontFamily::Name("bold".into())),
     );
     style
         .text_styles
         .insert(TextStyle::Body, FontId::new(14.0, FontFamily::Proportional));
     style.text_styles.insert(
         TextStyle::Name("H3".into()),
-        FontId::new(16.0, FontFamily::Name("bold".into())),
+        FontId::new(14.0, FontFamily::Name("bold".into())),
     );
     style.text_styles.insert(
         TextStyle::Name("Nav".into()),
-        FontId::new(26.0, FontFamily::Name("bold".into())),
+        FontId::new(18.0, FontFamily::Name("bold".into())),
     );
     ctx.set_style(style);
 }
