@@ -15,41 +15,14 @@ use eframe::egui::{
 };
 
 fn setup_style(ctx: &egui::Context) {
-    let mut fonts = FontDefinitions::default();
-    fonts.font_data.insert(
-        "dejavu".to_owned(),
-        std::sync::Arc::new(FontData::from_static(include_bytes!(
-            "../res/DejaVuSans.ttf"
-        ))),
-    );
-    fonts.font_data.insert(
-        "dejavu-bold".to_owned(),
-        std::sync::Arc::new(FontData::from_static(include_bytes!(
-            "../res/DejaVuSans-Bold.ttf"
-        ))),
-    );
-    fonts
-        .families
-        .entry(FontFamily::Proportional)
-        .or_default()
-        .insert(0, "dejavu".to_owned());
-    fonts
-        .families
-        .entry(FontFamily::Monospace)
-        .or_default()
-        .insert(0, "dejavu".to_owned());
-    fonts
-        .families
-        .entry(FontFamily::Name("bold".into()))
-        .or_default()
-        .insert(0, "dejavu-bold".to_owned());
+    let fonts = FontDefinitions::default();
     ctx.set_fonts(fonts);
 
     let mut style = Style::default();
     style.visuals = Visuals::dark();
-    style.visuals.widgets.active.bg_fill = Color32::from_rgb(80, 60, 120);
-    style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(100, 80, 150);
-    style.visuals.selection.bg_fill = Color32::from_rgb(130, 100, 190);
+    style.visuals.widgets.active.bg_fill = Color32::from_rgb(0, 177, 227);
+    style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(0, 157, 207);
+    style.visuals.selection.bg_fill = Color32::from_rgb(0, 177, 227);
     style.spacing.button_padding = egui::vec2(12.0, 8.0);
     style.spacing.item_spacing = egui::vec2(10.0, 8.0);
 
