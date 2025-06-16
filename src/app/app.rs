@@ -87,8 +87,8 @@ impl eframe::App for PartyApp {
                     .fill(Color32::from_gray(40))
                     .inner_margin(egui::Margin {
                         left: 15,
-                        top: 0,
-                        right: 0,
+                        top: 20,
+                        right: 15,
                         bottom: 0,
                     }),
             )
@@ -221,6 +221,7 @@ impl PartyApp {
             }
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                ui.add_space(20.0);
                 let quit = ui.add(
                     egui::Label::new(
                         RichText::new("QUIT").text_style(egui::TextStyle::Name("Nav".into())),
@@ -485,45 +486,38 @@ impl PartyApp {
             .show(ui, |ui| {
                 ui.heading("Profiles");
                 ui.separator();
-                egui::ScrollArea::vertical()
-                    .max_height(
-                        ui.available_height()
-                            - ui.spacing().interact_size.y
-                            - ui.style().spacing.item_spacing.y,
-                    )
-                    .auto_shrink(false)
-                    .show(ui, |ui| {
-                        for profile in &self.profiles {
-                            if ui.selectable_value(&mut 0, 0, profile).clicked() {
-                                if let Err(_) = std::process::Command::new("sh")
-                                    .arg("-c")
-                                    .arg(format!(
-                                        "xdg-open {}/profiles/{}",
-                                        PATH_PARTY.display(),
-                                        profile
-                                    ))
-                                    .status()
-                                {
-                                    msg("Error", "Couldn't open profile directory!");
-                                }
-                            };
-                        }
-                    });
-                ui.add_space(ui.style().spacing.item_spacing.y);
-                if ui.button("New").clicked() {
-                    if let Some(name) = dialog::Input::new("Enter name (must be alphanumeric):")
-                        .title("New Profile")
-                        .show()
-                        .expect("Could not display dialog box")
-                    {
-                        if !name.is_empty() && name.chars().all(char::is_alphanumeric) {
-                            create_profile(&name).unwrap();
-                        } else {
-                            msg("Error", "Invalid name");
-                        }
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    for profile in &self.profiles {
+                        if ui.selectable_value(&mut 0, 0, profile).clicked() {
+                            if let Err(_) = std::process::Command::new("sh")
+                                .arg("-c")
+                                .arg(format!(
+                                    "xdg-open {}/profiles/{}",
+                                    PATH_PARTY.display(),
+                                    profile
+                                ))
+                                .status()
+                            {
+                                msg("Error", "Couldn't open profile directory!");
+                            }
+                        };
                     }
-                    self.profiles = scan_profiles(false);
-                }
+                    ui.add_space(ui.style().spacing.item_spacing.y);
+                    if ui.button("New").clicked() {
+                        if let Some(name) = dialog::Input::new("Enter name (must be alphanumeric):")
+                            .title("New Profile")
+                            .show()
+                            .expect("Could not display dialog box")
+                        {
+                            if !name.is_empty() && name.chars().all(char::is_alphanumeric) {
+                                create_profile(&name).unwrap();
+                            } else {
+                                msg("Error", "Invalid name");
+                            }
+                        }
+                        self.profiles = scan_profiles(false);
+                    }
+                });
             });
     }
 
