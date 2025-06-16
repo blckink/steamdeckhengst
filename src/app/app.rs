@@ -493,7 +493,15 @@ impl PartyApp {
     fn display_page_about(&mut self, ui: &mut Ui) {
         ui.heading("About");
         ui.separator();
-        ui.label(format!("Version: v{}", env!("CARGO_PKG_VERSION")));
+        ui.horizontal(|ui| {
+            ui.image(egui::include_image!("../.github/assets/sdh.svg"));
+            ui.label(format!("Version: v{}", env!("CARGO_PKG_VERSION")));
+        });
+        ui.separator();
+        let readme = include_str!("../README.md");
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            ui.label(readme);
+        });
     }
 
     fn handle_gamepad_gui(&mut self, raw_input: &mut egui::RawInput) {
