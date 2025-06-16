@@ -4,8 +4,8 @@ mod handler;
 mod input;
 mod launch;
 mod paths;
-mod util;
 mod task;
+mod util;
 
 use crate::app::*;
 use crate::paths::*;
@@ -67,8 +67,10 @@ fn main() -> eframe::Result {
             .with_min_inner_size([640.0, 360.0])
             .with_fullscreen(fullscreen)
             .with_icon(
-                eframe::icon_data::from_png_bytes(&include_bytes!("../res/icon.png")[..])
-                    .expect("Failed to load icon"),
+                eframe::icon_data::from_png_bytes(
+                    &include_bytes!("../.github/assets/icon.png")[..],
+                )
+                .expect("Failed to load icon"),
             ),
         ..Default::default()
     };

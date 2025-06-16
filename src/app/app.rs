@@ -18,6 +18,7 @@ pub enum MenuPage {
     Profiles,
     Game,
     Players,
+    About,
 }
 
 pub struct PartyApp {
@@ -76,7 +77,10 @@ impl eframe::App for PartyApp {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             self.display_top_panel(ui);
         });
-        if (self.cur_page != MenuPage::Games) && (self.cur_page != MenuPage::Players) {
+        if (self.cur_page != MenuPage::Games)
+            && (self.cur_page != MenuPage::Players)
+            && (self.cur_page != MenuPage::About)
+        {
             self.display_info_panel(ctx);
         }
         egui::CentralPanel::default().show(ctx, |ui| match self.cur_page {
@@ -94,6 +98,9 @@ impl eframe::App for PartyApp {
             }
             MenuPage::Players => {
                 self.display_page_players(ui);
+            }
+            MenuPage::About => {
+                self.display_page_about(ui);
             }
         });
         ctx.request_repaint_after(std::time::Duration::from_millis(33)); // 30 fps
@@ -138,6 +145,12 @@ impl PartyApp {
             {
                 self.cur_page = MenuPage::Settings;
             }
+            if ui
+                .selectable_label(self.cur_page == MenuPage::About, "About")
+                .clicked()
+            {
+                self.cur_page = MenuPage::About;
+            }
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button("Quit").clicked() {
                     ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
@@ -147,23 +160,9 @@ impl PartyApp {
                     self.pads.clear();
                     self.pads = scan_evdev_gamepads();
                 }
-                let version_label = match self.needs_update {
-                    true => format!("v{} (Update Available)", env!("CARGO_PKG_VERSION")),
-                    false => format!("v{}", env!("CARGO_PKG_VERSION")),
-                };
                 if self.update_check.is_some() {
                     ui.label("Checking for updates...");
-                } else {
-                    ui.hyperlink_to(
-                        version_label,
-                        "https://github.com/blckink/steamdeckhengst/releases",
-                    );
                 }
-                ui.add(egui::Separator::default().vertical());
-                ui.hyperlink_to(
-                    "Open Source Licenses",
-                    "https://github.com/blckink/steamdeckhengst/tree/main?tab=License-2-ov-file",
-                );
             });
         });
     }
@@ -213,12 +212,11 @@ impl PartyApp {
                         |ui| {
                         let selected = self.selected_game == idx;
                         let img_src = match &self.games[idx] {
-                            HandlerRef(h) if !h.img_paths.is_empty() => {
-                                format!("file://{}", h.img_paths[0].display()).into()
-                            }
                             HandlerRef(h) => {
                                 if let Some(appid) = &h.steam_appid {
                                     format!("https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/{}/header.jpg", appid).into()
+                                } else if !h.img_paths.is_empty() {
+                                    format!("file://{}", h.img_paths[0].display()).into()
                                 } else {
                                     self.games[idx].icon()
                                 }
@@ -490,6 +488,12 @@ impl PartyApp {
                 self.start_game();
             }
         }
+    }
+
+    fn display_page_about(&mut self, ui: &mut Ui) {
+        ui.heading("About");
+        ui.separator();
+        ui.label(format!("Version: v{}", env!("CARGO_PKG_VERSION")));
     }
 
     fn handle_gamepad_gui(&mut self, raw_input: &mut egui::RawInput) {
