@@ -41,11 +41,11 @@
 
 1. Launch in Desktop Mode:
    ```bash
-   partydeck-rs
+   steamdeckhengst
    ```
 
 2. Gaming Mode?  
-   Add `PartyDeckKWinLaunch.sh` as a non-Steam game and disable Steam Input. That’s it.
+   Add `SteamDeckHengstKWinLaunch.sh` as a non-Steam game and disable Steam Input. That’s it.
 
 ### Desktop Linux
 
@@ -60,7 +60,7 @@
 
 2. Then:
    ```bash
-   partydeck-rs
+   steamdeckhengst
    ```
 
 3. Disable Steam Input layouts for controllers.
@@ -124,7 +124,7 @@ You'll need these for game launching and sandboxing:
 
 ## 🤝 Credits
 
-- 🛠️ [wunnr](https://github.com/wunnr) – partydeck-rs mastermind  
+- 🛠️ [wunnr](https://github.com/wunnr) – partydeck-rs mastermind
 - 🧠 [MrGoldberg](https://github.com/Detanup01/gbe_fork) – Steam API wizardry  
 - 🍷 [GloriousEggroll](https://github.com/Open-Wine-Components/umu-launcher) – Proton magic  
 - 🧩 [Tau5](https://github.com/Tau5/Co-op-on-Linux) & [Syntrait](https://github.com/Syntrait/splinux)  

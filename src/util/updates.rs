@@ -2,11 +2,11 @@ use crate::paths::*;
 
 use std::error::Error;
 
-pub fn check_for_partydeck_update() -> Result<bool, Box<dyn Error>> {
+pub fn check_for_steamdeckhengst_update() -> Result<bool, Box<dyn Error>> {
     let client = reqwest::blocking::Client::new();
     let response = client
         .get("https://api.github.com/repos/blckink/steamdeckhengst/releases/latest")
-        .header("User-Agent", "partydeck")
+        .header("User-Agent", "steamdeckhengst")
         .send()?;
     let release: serde_json::Value = response.json()?;
     if let Some(tag_name) = release["tag_name"].as_str() {
@@ -19,7 +19,6 @@ pub fn check_for_partydeck_update() -> Result<bool, Box<dyn Error>> {
     Ok(false)
 }
 
-
 pub fn update_umu_launcher() -> Result<(), Box<dyn Error>> {
     use compress_tools::*;
 
@@ -31,7 +30,7 @@ pub fn update_umu_launcher() -> Result<(), Box<dyn Error>> {
     let client = reqwest::blocking::Client::new();
     let response = client
         .get("https://api.github.com/repos/Open-Wine-Components/umu-launcher/releases/latest")
-        .header("User-Agent", "partydeck")
+        .header("User-Agent", "steamdeckhengst")
         .send()?;
 
     let release: serde_json::Value = response.json()?;
@@ -86,7 +85,7 @@ pub fn update_goldberg_emu() -> Result<(), Box<dyn Error>> {
     let client = reqwest::blocking::Client::new();
     let response = client
         .get("https://api.github.com/repos/Detanup01/gbe_fork/releases/latest")
-        .header("User-Agent", "partydeck")
+        .header("User-Agent", "steamdeckhengst")
         .send()?;
 
     let release: serde_json::Value = response.json()?;

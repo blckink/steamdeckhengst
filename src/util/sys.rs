@@ -51,7 +51,7 @@ pub fn get_instance_resolution(
             } else {
                 (basewidth / 2, baseheight)
             }
-        },
+        }
         3 => {
             if i == 0 {
                 (basewidth, baseheight / 2)

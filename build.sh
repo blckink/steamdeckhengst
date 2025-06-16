@@ -7,10 +7,10 @@ echo "📦 Building in $BUILD_MODE mode..."
 
 if [ "$BUILD_MODE" = "debug" ]; then
     cargo build
-    BIN_PATH="target/debug/partydeck-rs"
+    BIN_PATH="target/debug/steamdeckhengst"
 else
     cargo build --release
-    BIN_PATH="target/release/partydeck-rs"
+    BIN_PATH="target/release/steamdeckhengst"
 fi
 
 # Verify binary exists
@@ -25,8 +25,8 @@ rm -rf build/
 mkdir -p build
 
 # Copy binary and required assets
-cp "$BIN_PATH" build/partydeck-rs
+cp "$BIN_PATH" build/steamdeckhengst
 cp -r res build/
-cp res/PartyDeckKWinLaunch.sh build/
+cp res/SteamDeckHengstKWinLaunch.sh build/
 
 echo "✅ Build complete – files are in ./build"

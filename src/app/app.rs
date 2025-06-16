@@ -48,7 +48,7 @@ impl Default for PartyApp {
         Self {
             needs_update: false,
             update_check: Some(Task::spawn(|| {
-                check_for_partydeck_update().unwrap_or(false)
+                check_for_steamdeckhengst_update().unwrap_or(false)
             })),
             options: load_cfg(),
             cur_page: MenuPage::Games,
@@ -389,7 +389,7 @@ impl PartyApp {
             self.infotext = "Forces games to use the version of SDL2 included in the Steam Runtime. Only works on native Linux games, may fix problematic game controller support (incorrect mappings) in some games, may break others. If unsure, leave this unchecked.".to_string();
         }
         if render_scale_slider.hovered() {
-            self.infotext = "PartyDeck divides each instance by a base resolution. 100% render scale = your monitor's native resolution. Lower this value to increase performance, but may cause graphical issues or even break some games. If you're using a small screen like the Steam Deck's handheld screen, increase this to 150% or higher.".to_string();
+            self.infotext = "SteamDeckHengst divides each instance by a base resolution. 100% render scale = your monitor's native resolution. Lower this value to increase performance, but may cause graphical issues or even break some games. If you're using a small screen like the Steam Deck's handheld screen, increase this to 150% or higher.".to_string();
         }
         if gamescope_sdl_backend_check.hovered() {
             self.infotext = "Runs gamescope sessions using the SDL backend. If unsure, leave this checked. If gamescope sessions only show a black screen or give an error (especially on Nvidia + Wayland), try disabling this.".to_string();
@@ -411,7 +411,7 @@ impl PartyApp {
 
         ui.horizontal(|ui| {
         if ui.button("Erase Proton Prefix").clicked() {
-            if yesno("Erase Prefix?", "This will erase the Wine prefix used by PartyDeck. This shouldn't erase profile/game-specific data, but exercise caution. Are you sure?") && PATH_PARTY.join("gamesyms").exists() {
+            if yesno("Erase Prefix?", "This will erase the Wine prefix used by SteamDeckHengst. This shouldn't erase profile/game-specific data, but exercise caution. Are you sure?") && PATH_PARTY.join("gamesyms").exists() {
                 if let Err(err) = std::fs::remove_dir_all(PATH_PARTY.join("pfx")) {
                     msg("Error", &format!("Couldn't erase pfx data: {}", err));
                 }
@@ -452,13 +452,13 @@ impl PartyApp {
         });
 
         ui.horizontal(|ui| {
-            if ui.button("Open PartyDeck Data Folder").clicked() {
+            if ui.button("Open SteamDeckHengst Data Folder").clicked() {
                 if let Err(_) = std::process::Command::new("sh")
                     .arg("-c")
                     .arg(format!("xdg-open {}/", PATH_PARTY.display()))
                     .status()
                 {
-                    msg("Error", "Couldn't open PartyDeck Data Folder!");
+                    msg("Error", "Couldn't open SteamDeckHengst Data Folder!");
                 }
             }
             if ui.button("Edit game paths").clicked() {

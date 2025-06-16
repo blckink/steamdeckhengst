@@ -1,4 +1,4 @@
-use crossbeam_channel::{unbounded, Receiver};
+use crossbeam_channel::{Receiver, unbounded};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use threadpool::ThreadPool;
