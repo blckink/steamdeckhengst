@@ -10,6 +10,7 @@ use crate::util::*;
 use dialog::DialogBox;
 use eframe::egui::{self, Color32, Key, RichText, Ui};
 use egui_commonmark::{CommonMarkCache, CommonMarkViewer};
+use regex::Regex;
 use std::path::PathBuf;
 
 #[derive(Eq, PartialEq)]
@@ -77,16 +78,18 @@ impl eframe::App for PartyApp {
                 self.update_check = None;
             }
         }
-        let side_w = ctx.available_rect().width() * 0.25;
+        let side_w = 150.0;
         egui::SidePanel::left("left_panel")
             .resizable(false)
             .exact_width(side_w)
+            .frame(egui::Frame::default().fill(Color32::from_gray(40)))
             .show(ctx, |ui| {
                 self.display_left_panel(ui);
             });
 
         egui::TopBottomPanel::top("nav_bar")
             .exact_height(60.0)
+            .frame(egui::Frame::default().fill(Color32::from_gray(40)))
             .show(ctx, |ui| {
                 self.display_nav_bar(ui, ctx);
             });
@@ -118,6 +121,14 @@ impl eframe::App for PartyApp {
                 self.display_page_about(ui);
             }
         });
+
+        if self.cur_page == MenuPage::Games {
+            egui::TopBottomPanel::bottom("games_buttons")
+                .exact_height(40.0)
+                .show(ctx, |ui| {
+                    self.display_games_buttons(ui);
+                });
+        }
         ctx.request_repaint_after(std::time::Duration::from_millis(33)); // 30 fps
     }
 }
@@ -125,10 +136,12 @@ impl eframe::App for PartyApp {
 impl PartyApp {
     fn display_left_panel(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
-            ui.add(
-                egui::Image::new(egui::include_image!("../../.github/assets/sdh.svg"))
-                    .max_height(60.0),
-            );
+            ui.vertical_centered(|ui| {
+                ui.add(
+                    egui::Image::new(egui::include_image!("../../.github/assets/sdh.svg"))
+                        .max_height(60.0),
+                );
+            });
             ui.separator();
             ui.label("Gamepads:");
             if self.pads.is_empty() {
@@ -155,84 +168,55 @@ impl PartyApp {
     }
 
     fn display_nav_bar(&mut self, ui: &mut Ui, ctx: &egui::Context) {
+        ui.style_mut().spacing.item_spacing.x = 20.0;
         ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-            if ui
-                .add(
-                    egui::Label::new(if self.cur_page == MenuPage::Games {
-                        RichText::new("Games")
-                            .underline()
-                            .color(Color32::from_rgb(0, 177, 227))
-                    } else {
-                        RichText::new("Games")
-                    })
-                    .sense(egui::Sense::click()),
-                )
-                .clicked()
-            {
-                self.cur_page = MenuPage::Games;
-            }
-            if self.cur_page == MenuPage::Games {
-                if ui.button("Add").clicked() {
-                    if let Err(err) = add_game() {
-                        println!("Couldn't add game: {err}");
-                        msg("Error", &format!("Couldn't add game: {err}"));
-                    }
-                    if ui.button("Refresh").clicked() {
-                        self.games = scan_all_games();
-                    }
+            let pages = [
+                (MenuPage::Games, "GAMES"),
+                (MenuPage::Profiles, "PROFILES"),
+                (MenuPage::Settings, "SETTINGS"),
+            ];
+            for (page, label) in pages {
+                let resp = ui.add(
+                    egui::Label::new(RichText::new(label).text_style(egui::TextStyle::Button))
+                        .sense(egui::Sense::click()),
+                );
+                if self.cur_page == page {
+                    let stroke = egui::Stroke::new(1.0, Color32::from_rgb(0, 177, 227));
+                    ui.painter().line_segment(
+                        [
+                            resp.rect.left_bottom() + egui::vec2(0.0, 2.0),
+                            resp.rect.right_bottom() + egui::vec2(0.0, 2.0),
+                        ],
+                        stroke,
+                    );
                 }
-                if ui.button("Refresh").clicked() {
-                    self.games = scan_all_games();
+                if resp.clicked() {
+                    if page == MenuPage::Profiles {
+                        self.profiles = scan_profiles(false);
+                    }
+                    self.cur_page = page;
                 }
             }
-            if ui
-                .add(
-                    egui::Label::new(if self.cur_page == MenuPage::Profiles {
-                        RichText::new("Profiles")
-                            .underline()
-                            .color(Color32::from_rgb(0, 177, 227))
-                    } else {
-                        RichText::new("Profiles")
-                    })
-                    .sense(egui::Sense::click()),
-                )
-                .clicked()
-            {
-                self.profiles = scan_profiles(false);
-                self.cur_page = MenuPage::Profiles;
-            }
-            if ui
-                .add(
-                    egui::Label::new(if self.cur_page == MenuPage::Settings {
-                        RichText::new("Settings")
-                            .underline()
-                            .color(Color32::from_rgb(0, 177, 227))
-                    } else {
-                        RichText::new("Settings")
-                    })
-                    .sense(egui::Sense::click()),
-                )
-                .clicked()
-            {
-                self.cur_page = MenuPage::Settings;
-            }
+
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button("Quit").clicked() {
                     ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
-                if ui
-                    .add(
-                        egui::Label::new(if self.cur_page == MenuPage::About {
-                            RichText::new("About")
-                                .underline()
-                                .color(Color32::from_rgb(0, 177, 227))
-                        } else {
-                            RichText::new("About")
-                        })
+                let resp = ui.add(
+                    egui::Label::new(RichText::new("ABOUT").text_style(egui::TextStyle::Button))
                         .sense(egui::Sense::click()),
-                    )
-                    .clicked()
-                {
+                );
+                if self.cur_page == MenuPage::About {
+                    let stroke = egui::Stroke::new(1.0, Color32::from_rgb(0, 177, 227));
+                    ui.painter().line_segment(
+                        [
+                            resp.rect.left_bottom() + egui::vec2(0.0, 2.0),
+                            resp.rect.right_bottom() + egui::vec2(0.0, 2.0),
+                        ],
+                        stroke,
+                    );
+                }
+                if resp.clicked() {
                     self.cur_page = MenuPage::About;
                 }
             });
@@ -324,6 +308,20 @@ impl PartyApp {
 
     fn display_page_games(&mut self, ui: &mut Ui) {
         self.display_games_grid(ui);
+    }
+
+    fn display_games_buttons(&mut self, ui: &mut Ui) {
+        ui.horizontal_centered(|ui| {
+            if ui.button("Add").clicked() {
+                if let Err(err) = add_game() {
+                    println!("Couldn't add game: {err}");
+                    msg("Error", &format!("Couldn't add game: {err}"));
+                }
+            }
+            if ui.button("Refresh").clicked() {
+                self.games = scan_all_games();
+            }
+        });
     }
 
     fn display_page_settings(&mut self, ui: &mut Ui) {
@@ -568,12 +566,13 @@ impl PartyApp {
     fn display_page_about(&mut self, ui: &mut Ui) {
         ui.heading(format!("About - Version {}", env!("CARGO_PKG_VERSION")));
         ui.separator();
-        ui.image(egui::include_image!("../../.github/assets/sdh.svg"));
-        ui.separator();
-        let readme = include_str!("../../README.md");
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            CommonMarkViewer::new().show(ui, &mut self.md_cache, readme);
-        });
+        let raw = include_str!("../../README.md");
+        let readme = clean_readme(raw);
+        egui::ScrollArea::vertical()
+            .max_height(ui.available_height())
+            .show(ui, |ui| {
+                CommonMarkViewer::new().show(ui, &mut self.md_cache, &readme);
+            });
     }
 
     fn handle_gamepad_gui(&mut self, raw_input: &mut egui::RawInput) {
@@ -751,6 +750,14 @@ impl PartyApp {
 
         Ok(())
     }
+}
+
+fn clean_readme(src: &str) -> String {
+    let img_re = Regex::new(r#"<img\s+src=\"([^\"]+)\"[^>]*>"#).unwrap();
+    let mut out = img_re.replace_all(src, "![]($1)").to_string();
+    out = out.replace("<br />", "\n");
+    let tags_re = Regex::new(r"</?[^>]+>").unwrap();
+    tags_re.replace_all(&out, "").to_string()
 }
 
 static GUEST_NAMES: [&str; 21] = [
