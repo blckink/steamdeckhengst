@@ -62,9 +62,6 @@
    ```bash
    partydeck-rs
    ```
-
-3. Disable Steam Input layouts for controllers.
-
 ---
 
 ## 🛠️ Setup & Build
