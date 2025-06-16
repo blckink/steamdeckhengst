@@ -77,19 +77,27 @@ impl eframe::App for PartyApp {
                 self.update_check = None;
             }
         }
-        let side_w = ctx.available_rect().width() * 0.28;
-        egui::SidePanel::left("nav_panel")
+        let side_w = ctx.available_rect().width() * 0.25;
+        egui::SidePanel::left("left_panel")
             .resizable(false)
             .exact_width(side_w)
             .show(ctx, |ui| {
-                self.display_nav_panel(ui, ctx);
+                self.display_left_panel(ui);
             });
+
+        egui::TopBottomPanel::top("nav_bar")
+            .exact_height(60.0)
+            .show(ctx, |ui| {
+                self.display_nav_bar(ui, ctx);
+            });
+
         if (self.cur_page != MenuPage::Games)
             && (self.cur_page != MenuPage::Players)
             && (self.cur_page != MenuPage::About)
         {
             self.display_info_panel(ctx);
         }
+
         egui::CentralPanel::default().show(ctx, |ui| match self.cur_page {
             MenuPage::Games => {
                 self.display_page_games(ui);
@@ -115,50 +123,74 @@ impl eframe::App for PartyApp {
 }
 
 impl PartyApp {
-    fn display_nav_panel(&mut self, ui: &mut Ui, ctx: &egui::Context) {
+    fn display_left_panel(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
-            ui.horizontal(|ui| {
-                ui.image(egui::include_image!("../../.github/assets/sdh.svg"));
-                ui.add_space(10.0);
-                if ui
-                    .selectable_label(self.cur_page == MenuPage::Games, "Games")
-                    .clicked()
-                {
-                    self.cur_page = MenuPage::Games;
-                }
-                if self.cur_page == MenuPage::Games {
-                    if ui.button("Add").clicked() {
-                        if let Err(err) = add_game() {
-                            println!("Couldn't add game: {err}");
-                            msg("Error", &format!("Couldn't add game: {err}"));
-                        }
-                        let dir_tmp = PATH_PARTY.join("tmp");
-                        if dir_tmp.exists() {
-                            let _ = std::fs::remove_dir_all(&dir_tmp);
-                        }
-                        self.games = scan_all_games();
+            ui.image(egui::include_image!("../../.github/assets/sdh.svg"));
+            ui.separator();
+            ui.label("Gamepads:");
+            for pad in &self.pads {
+                ui.horizontal(|ui| {
+                    ui.add(egui::Label::new(
+                        RichText::new("\u{25CF}").color(Color32::GREEN),
+                    ));
+                    ui.label(pad.fancyname());
+                });
+            }
+            if self.update_check.is_some() {
+                ui.label("Checking for updates...");
+            }
+        });
+    }
+
+    fn display_nav_bar(&mut self, ui: &mut Ui, ctx: &egui::Context) {
+        ui.horizontal(|ui| {
+            if ui
+                .selectable_label(self.cur_page == MenuPage::Games, "Games")
+                .clicked()
+            {
+                self.cur_page = MenuPage::Games;
+            }
+            if self.cur_page == MenuPage::Games {
+                if ui.button("Add").clicked() {
+                    if let Err(err) = add_game() {
+                        println!("Couldn't add game: {err}");
+                        msg("Error", &format!("Couldn't add game: {err}"));
                     }
                     if ui.button("Refresh").clicked() {
                         self.games = scan_all_games();
                     }
                 }
+                if ui.button("Refresh").clicked() {
+                    self.games = scan_all_games();
+                }
+            }
+            if ui
+                .selectable_label(self.cur_page == MenuPage::Profiles, "Profiles")
+                .clicked()
+            {
+                self.profiles = scan_profiles(false);
+                self.cur_page = MenuPage::Profiles;
+            }
+            if ui.button("Rescan").clicked() {
+                self.players.clear();
+                self.pads.clear();
+                self.pads = scan_evdev_gamepads();
+            }
+            if ui
+                .selectable_label(self.cur_page == MenuPage::Settings, "Settings")
+                .clicked()
+            {
+                self.cur_page = MenuPage::Settings;
+            }
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.button("Quit").clicked() {
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
                 if ui
-                    .selectable_label(self.cur_page == MenuPage::Profiles, "Profiles")
+                    .selectable_label(self.cur_page == MenuPage::About, "About")
                     .clicked()
                 {
-                    self.profiles = scan_profiles(false);
-                    self.cur_page = MenuPage::Profiles;
-                }
-                if ui.button("Rescan").clicked() {
-                    self.players.clear();
-                    self.pads.clear();
-                    self.pads = scan_evdev_gamepads();
-                }
-                if ui
-                    .selectable_label(self.cur_page == MenuPage::Settings, "Settings")
-                    .clicked()
-                {
-                    self.cur_page = MenuPage::Settings;
+                    self.cur_page = MenuPage::About;
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui.button("Quit").clicked() {
