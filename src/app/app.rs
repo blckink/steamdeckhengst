@@ -125,16 +125,28 @@ impl eframe::App for PartyApp {
 impl PartyApp {
     fn display_left_panel(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
-            ui.image(egui::include_image!("../../.github/assets/sdh.svg"));
+            ui.add(
+                egui::Image::new(egui::include_image!("../../.github/assets/sdh.svg"))
+                    .max_height(60.0),
+            );
             ui.separator();
             ui.label("Gamepads:");
-            for pad in &self.pads {
-                ui.horizontal(|ui| {
-                    ui.add(egui::Label::new(
-                        RichText::new("\u{25CF}").color(Color32::GREEN),
-                    ));
-                    ui.label(pad.fancyname());
-                });
+            if self.pads.is_empty() {
+                ui.label("No Gamepads detected");
+            } else {
+                for pad in &self.pads {
+                    ui.horizontal(|ui| {
+                        ui.add(egui::Label::new(
+                            RichText::new("\u{25CF}").color(Color32::GREEN),
+                        ));
+                        ui.label(pad.fancyname());
+                    });
+                }
+            }
+            if ui.button("Rescan").clicked() {
+                self.players.clear();
+                self.pads.clear();
+                self.pads = scan_evdev_gamepads();
             }
             if self.update_check.is_some() {
                 ui.label("Checking for updates...");
@@ -143,9 +155,18 @@ impl PartyApp {
     }
 
     fn display_nav_bar(&mut self, ui: &mut Ui, ctx: &egui::Context) {
-        ui.horizontal(|ui| {
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
             if ui
-                .selectable_label(self.cur_page == MenuPage::Games, "Games")
+                .add(
+                    egui::Label::new(if self.cur_page == MenuPage::Games {
+                        RichText::new("Games")
+                            .underline()
+                            .color(Color32::from_rgb(0, 177, 227))
+                    } else {
+                        RichText::new("Games")
+                    })
+                    .sense(egui::Sense::click()),
+                )
                 .clicked()
             {
                 self.cur_page = MenuPage::Games;
@@ -165,19 +186,32 @@ impl PartyApp {
                 }
             }
             if ui
-                .selectable_label(self.cur_page == MenuPage::Profiles, "Profiles")
+                .add(
+                    egui::Label::new(if self.cur_page == MenuPage::Profiles {
+                        RichText::new("Profiles")
+                            .underline()
+                            .color(Color32::from_rgb(0, 177, 227))
+                    } else {
+                        RichText::new("Profiles")
+                    })
+                    .sense(egui::Sense::click()),
+                )
                 .clicked()
             {
                 self.profiles = scan_profiles(false);
                 self.cur_page = MenuPage::Profiles;
             }
-            if ui.button("Rescan").clicked() {
-                self.players.clear();
-                self.pads.clear();
-                self.pads = scan_evdev_gamepads();
-            }
             if ui
-                .selectable_label(self.cur_page == MenuPage::Settings, "Settings")
+                .add(
+                    egui::Label::new(if self.cur_page == MenuPage::Settings {
+                        RichText::new("Settings")
+                            .underline()
+                            .color(Color32::from_rgb(0, 177, 227))
+                    } else {
+                        RichText::new("Settings")
+                    })
+                    .sense(egui::Sense::click()),
+                )
                 .clicked()
             {
                 self.cur_page = MenuPage::Settings;
@@ -187,36 +221,21 @@ impl PartyApp {
                     ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
                 if ui
-                    .selectable_label(self.cur_page == MenuPage::About, "About")
+                    .add(
+                        egui::Label::new(if self.cur_page == MenuPage::About {
+                            RichText::new("About")
+                                .underline()
+                                .color(Color32::from_rgb(0, 177, 227))
+                        } else {
+                            RichText::new("About")
+                        })
+                        .sense(egui::Sense::click()),
+                    )
                     .clicked()
                 {
                     self.cur_page = MenuPage::About;
                 }
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.button("Quit").clicked() {
-                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-                    }
-                    if ui
-                        .selectable_label(self.cur_page == MenuPage::About, "About")
-                        .clicked()
-                    {
-                        self.cur_page = MenuPage::About;
-                    }
-                });
             });
-            ui.separator();
-            ui.label("Gamepads:");
-            for pad in &self.pads {
-                ui.horizontal(|ui| {
-                    ui.add(egui::Label::new(
-                        RichText::new("\u{25CF}").color(Color32::GREEN),
-                    ));
-                    ui.label(pad.fancyname());
-                });
-            }
-            if self.update_check.is_some() {
-                ui.label("Checking for updates...");
-            }
         });
     }
 
