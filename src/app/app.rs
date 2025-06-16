@@ -408,7 +408,10 @@ impl PartyApp {
         ui.separator();
 
         ui.horizontal(|ui| {
-            if ui.button("Play").clicked() {
+            if ui
+                .add_sized([150.0, 40.0], egui::Button::new("Play"))
+                .clicked()
+            {
                 self.players.clear();
                 self.profiles = scan_profiles(true);
                 self.cur_page = MenuPage::Players;
