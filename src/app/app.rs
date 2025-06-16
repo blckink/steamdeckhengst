@@ -45,15 +45,16 @@ macro_rules! cur_game {
 
 impl Default for PartyApp {
     fn default() -> Self {
+        let options = load_cfg();
         Self {
             needs_update: false,
             update_check: Some(Task::spawn(|| {
                 check_for_partydeck_update().unwrap_or(false)
             })),
-            options: load_cfg(),
+            pads: scan_evdev_gamepads(options.disable_steam_input),
+            options,
             cur_page: MenuPage::Games,
             infotext: String::new(),
-            pads: scan_evdev_gamepads(),
             players: Vec::new(),
             games: scan_all_games(),
             profiles: Vec::new(),
@@ -193,7 +194,7 @@ impl PartyApp {
             {
                 self.players.clear();
                 self.pads.clear();
-                self.pads = scan_evdev_gamepads();
+                self.pads = scan_evdev_gamepads(self.options.disable_steam_input);
             }
             if self.update_check.is_some() {
                 ui.label("Checking for updates...");
@@ -421,6 +422,8 @@ impl PartyApp {
             &mut self.options.gamescope_sdl_backend,
             "Use SDL backend for Gamescope",
         );
+        let disable_steam_input_check =
+            ui.checkbox(&mut self.options.disable_steam_input, "Disable Steam Input");
         let vertical_two_player_check = ui.checkbox(
             &mut self.options.vertical_two_player,
             "Vertical split for 2 players",
@@ -434,6 +437,9 @@ impl PartyApp {
         }
         if gamescope_sdl_backend_check.hovered() {
             self.infotext = "Runs gamescope sessions using the SDL backend. If unsure, leave this checked. If gamescope sessions only show a black screen or give an error (especially on Nvidia + Wayland), try disabling this.".to_string();
+        }
+        if disable_steam_input_check.hovered() {
+            self.infotext = "Ignore Steam Input virtual devices to avoid duplicate controllers.".to_string();
         }
         if vertical_two_player_check.hovered() {
             self.infotext = "Toggle how two player sessions are arranged. Enabled = vertical split (stacked). Disabled = horizontal split (side by side).".to_string();

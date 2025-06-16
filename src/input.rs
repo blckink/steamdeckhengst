@@ -117,9 +117,20 @@ impl Gamepad {
     }
 }
 
-pub fn scan_evdev_gamepads() -> Vec<Gamepad> {
+pub fn scan_evdev_gamepads(filter_steam: bool) -> Vec<Gamepad> {
     let mut pads: Vec<Gamepad> = Vec::new();
     for dev in evdev::enumerate() {
+        if filter_steam {
+            let vendor = dev.1.input_id().vendor();
+            if vendor == 0x28de {
+                continue;
+            }
+            if let Some(name) = dev.1.name() {
+                if name.contains("Steam Virtual Gamepad") {
+                    continue;
+                }
+            }
+        }
         let has_btn_south = dev
             .1
             .supported_keys()
