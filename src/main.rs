@@ -43,14 +43,14 @@ fn setup_style(ctx: &egui::Context) {
     style.spacing.item_spacing = egui::vec2(10.0, 8.0);
     style.text_styles.insert(
         TextStyle::Heading,
-        FontId::new(26.0, FontFamily::Proportional),
+        FontId::new(22.0, FontFamily::Proportional),
     );
     style
         .text_styles
-        .insert(TextStyle::Body, FontId::new(18.0, FontFamily::Proportional));
+        .insert(TextStyle::Body, FontId::new(16.0, FontFamily::Proportional));
     style.text_styles.insert(
         TextStyle::Button,
-        FontId::new(20.0, FontFamily::Proportional),
+        FontId::new(16.0, FontFamily::Proportional),
     );
     ctx.set_style(style);
 }
