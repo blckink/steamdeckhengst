@@ -99,6 +99,7 @@ impl Gamepad {
     }
 
     #[cfg(feature = "hid-battery")]
+
     fn battery_percent_hid(&self) -> Option<u8> {
         use hidapi::HidApi;
         let vid = self.dev.input_id().vendor();

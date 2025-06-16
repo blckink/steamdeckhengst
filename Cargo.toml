@@ -36,3 +36,4 @@ hidapi = { version = "2.6.3", optional = true, default-features = false, feature
 [features]
 default = []
 hid-battery = ["hidapi"]
+
