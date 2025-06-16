@@ -31,3 +31,8 @@ num_cpus = "1.16.0"
 chrono = "0.4"
 egui_commonmark = "0.20"
 regex = "1"
+hidapi = { version = "2.6.3", optional = true, default-features = false, features = ["linux-native"] }
+
+[features]
+default = []
+hid-battery = ["hidapi"]
