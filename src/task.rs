@@ -1,4 +1,4 @@
-use crossbeam_channel::{unbounded, Receiver};
+use crossbeam_channel::{Receiver, unbounded};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use threadpool::ThreadPool;
@@ -24,18 +24,8 @@ impl<T: Send + 'static> Task<T> {
         }
     }
 
-    pub fn is_finished(&self) -> bool {
-        let rx = self.receiver.lock().unwrap();
-        !rx.is_empty()
-    }
-
     pub fn try_join(&self) -> Option<T> {
         let rx = &mut *self.receiver.lock().unwrap();
         rx.try_recv().ok()
-    }
-
-    pub fn join(self) -> T {
-        let rx = self.receiver.into_inner().unwrap();
-        rx.recv().expect("Task thread panicked")
     }
 }
