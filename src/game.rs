@@ -1,4 +1,4 @@
-use crate::handler::{install_handler_from_file, scan_handlers, Handler};
+use crate::handler::{Handler, install_handler_from_file, scan_handlers};
 use crate::paths::*;
 
 use eframe::egui::{self, ImageSource};
@@ -42,7 +42,7 @@ impl Game {
                 if path.exists() {
                     format!("file://{}", path.display()).into()
                 } else {
-                    egui::include_image!("../res/icon.png")
+                    egui::include_image!("../.github/assets/sdh.svg")
                 }
             }
         }
