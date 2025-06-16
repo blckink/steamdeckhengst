@@ -3388,39 +3388,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "partydeck-rs"
-version = "0.3.2"
-dependencies = [
- "chrono",
- "compress-tools",
- "crossbeam-channel",
- "dialog",
- "eframe",
- "egui_commonmark",
- "egui_extras",
- "env_logger",
- "evdev",
- "fastrand",
- "image",
- "num_cpus",
- "once_cell",
- "rand 0.9.1",
- "regex",
- "reqwest",
- "rfd",
- "semver",
- "serde",
- "serde_json",
- "steamlocate",
- "tar",
- "threadpool",
- "walkdir",
- "x11rb",
- "zbus 5.6.0",
- "zip",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4492,6 +4459,39 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "steamdeckhengst"
+version = "0.3.2"
+dependencies = [
+ "chrono",
+ "compress-tools",
+ "crossbeam-channel",
+ "dialog",
+ "eframe",
+ "egui_commonmark",
+ "egui_extras",
+ "env_logger",
+ "evdev",
+ "fastrand",
+ "image",
+ "num_cpus",
+ "once_cell",
+ "rand 0.9.1",
+ "regex",
+ "reqwest",
+ "rfd",
+ "semver",
+ "serde",
+ "serde_json",
+ "steamlocate",
+ "tar",
+ "threadpool",
+ "walkdir",
+ "x11rb",
+ "zbus 5.6.0",
+ "zip",
+]
 
 [[package]]
 name = "steamlocate"

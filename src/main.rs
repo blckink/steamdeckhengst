@@ -89,7 +89,7 @@ fn main() -> eframe::Result {
     if !PATH_RES.join("umu-run").exists() {
         msg(
             "Downloading Dependencies",
-            "UMU Launcher not found in resources folder. PartyDeck uses UMU to launch Windows games with Proton. Click OK to automatically download from the internet.",
+            "UMU Launcher not found in resources folder. SteamDeckHengst uses UMU to launch Windows games with Proton. Click OK to automatically download from the internet.",
         );
         if let Err(e) = update_umu_launcher() {
             println!("Failed to download UMU Launcher: {}", e);
@@ -101,7 +101,7 @@ fn main() -> eframe::Result {
     if !PATH_RES.join("goldberg_linux").exists() || !PATH_RES.join("goldberg_win").exists() {
         msg(
             "Downloading Dependencies",
-            "Goldberg Steam Emu not found in resources folder. PartyDeck uses Goldberg for LAN play. Click OK to automatically download from the internet.",
+            "Goldberg Steam Emu not found in resources folder. SteamDeckHengst uses Goldberg for LAN play. Click OK to automatically download from the internet.",
         );
         if let Err(e) = update_goldberg_emu() {
             println!("Failed to download Goldberg: {}", e);
@@ -112,7 +112,7 @@ fn main() -> eframe::Result {
         }
     }
 
-    println!("\n[PARTYDECK] started\n");
+    println!("\n[STEAMDECKHENGST] started\n");
 
     let fullscreen = std::env::args().any(|arg| arg == "--fullscreen");
 
@@ -137,7 +137,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "PartyDeck",
+        "SteamDeckHengst",
         options,
         Box::new(|cc| {
             // This gives us image support:

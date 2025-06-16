@@ -1,9 +1,9 @@
 // Re-export all utility functions from submodules
 mod filesystem;
+mod logger;
 mod profiles;
 mod sys;
 mod updates;
-mod logger;
 
 // Re-export functions from profiles
 pub use profiles::{create_gamesave, create_profile, remove_guest_profiles, scan_profiles};
@@ -20,4 +20,4 @@ pub use sys::{
 pub use logger::{log_error, log_info};
 
 // Re-export functions from updates
-pub use updates::{check_for_partydeck_update, update_goldberg_emu, update_umu_launcher};
+pub use updates::{check_for_steamdeckhengst_update, update_goldberg_emu, update_umu_launcher};
