@@ -10,7 +10,7 @@ mod util;
 use crate::app::*;
 use crate::paths::*;
 use crate::util::*;
-use eframe::egui::{self, Color32, FontDefinitions, FontFamily, FontId, Style, TextStyle, Visuals};
+use eframe::egui::{self, Color32, FontData, FontDefinitions, FontFamily, FontId, Style, TextStyle, Visuals};
 
 fn setup_style(ctx: &egui::Context) {
     let mut fonts = FontDefinitions::default();
