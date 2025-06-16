@@ -68,17 +68,49 @@ impl Gamepad {
     }
 
     pub fn battery_percent(&self) -> Option<u8> {
+        if let Some(b) = self.battery_percent_sys() {
+            return Some(b);
+        }
+        if self.dev.input_id().vendor() == 0x054c {
+            return self.battery_percent_hid();
+        }
+        None
+    }
+
+    fn battery_percent_sys(&self) -> Option<u8> {
         let name = std::path::Path::new(&self.path)
             .file_name()
             .and_then(|p| p.to_str())?;
-        let mut sys_path = std::path::PathBuf::from("/sys/class/power_supply");
-        for entry in std::fs::read_dir(&sys_path).ok()? {
+        let sys_path = std::path::Path::new("/sys/class/power_supply");
+        for entry in std::fs::read_dir(sys_path).ok()? {
             let entry = entry.ok()?;
             if let Ok(content) = std::fs::read_to_string(entry.path().join("uevent")) {
                 if content.contains(name) {
                     if let Ok(cap) = std::fs::read_to_string(entry.path().join("capacity")) {
                         if let Ok(val) = cap.trim().parse::<u8>() {
                             return Some(val);
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn battery_percent_hid(&self) -> Option<u8> {
+        use hidapi::HidApi;
+        let vid = self.dev.input_id().vendor();
+        let pid = self.dev.input_id().product();
+        let api = HidApi::new().ok()?;
+        for info in api.device_list() {
+            if info.vendor_id() == vid && info.product_id() == pid {
+                if let Ok(device) = info.open_device(&api) {
+                    let mut buf = [0u8; 64];
+                    buf[0] = 0x02;
+                    if device.get_feature_report(&mut buf).is_ok() {
+                        let level = buf[53];
+                        if level <= 10 {
+                            return Some(level * 10);
                         }
                     }
                 }
