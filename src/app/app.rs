@@ -156,11 +156,9 @@ impl PartyApp {
                         println!("Couldn't add game: {err}");
                         msg("Error", &format!("Couldn't add game: {err}"));
                     }
-                    let dir_tmp = PATH_PARTY.join("tmp");
-                    if dir_tmp.exists() {
-                        let _ = std::fs::remove_dir_all(&dir_tmp);
+                    if ui.button("Refresh").clicked() {
+                        self.games = scan_all_games();
                     }
-                    self.games = scan_all_games();
                 }
                 if ui.button("Refresh").clicked() {
                     self.games = scan_all_games();
@@ -194,7 +192,31 @@ impl PartyApp {
                 {
                     self.cur_page = MenuPage::About;
                 }
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    if ui.button("Quit").clicked() {
+                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                    }
+                    if ui
+                        .selectable_label(self.cur_page == MenuPage::About, "About")
+                        .clicked()
+                    {
+                        self.cur_page = MenuPage::About;
+                    }
+                });
             });
+            ui.separator();
+            ui.label("Gamepads:");
+            for pad in &self.pads {
+                ui.horizontal(|ui| {
+                    ui.add(egui::Label::new(
+                        RichText::new("\u{25CF}").color(Color32::GREEN),
+                    ));
+                    ui.label(pad.fancyname());
+                });
+            }
+            if self.update_check.is_some() {
+                ui.label("Checking for updates...");
+            }
         });
     }
 
