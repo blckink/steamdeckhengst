@@ -78,7 +78,7 @@ impl eframe::App for PartyApp {
                 self.update_check = None;
             }
         }
-        let side_w = 150.0;
+        let side_w = 200.0;
         egui::SidePanel::left("left_panel")
             .resizable(false)
             .exact_width(side_w)
@@ -163,10 +163,25 @@ impl PartyApp {
             } else {
                 for pad in &self.pads {
                     ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(
-                            RichText::new("\u{25CF}").color(Color32::GREEN),
-                        ));
-                        ui.label(pad.fancyname());
+                        let image = match pad.pad_type() {
+                            PadType::Xbox => egui::include_image!("../../res/xbox.svg"),
+                            PadType::PlayStation => {
+                                egui::include_image!("../../res/playstation.svg")
+                            }
+                            PadType::Nintendo => egui::include_image!("../../res/nintendo.svg"),
+                            PadType::Unknown => egui::include_image!("../../res/gamepad.svg"),
+                        };
+                        ui.add(egui::Image::new(image).max_height(20.0));
+                        if let Some(id) = pad.event_id() {
+                            ui.label(format!("({})", id));
+                        }
+                        if let Some(bat) = pad.battery_percent() {
+                            ui.add(
+                                egui::Image::new(egui::include_image!("../../res/battery.svg"))
+                                    .max_height(12.0),
+                            );
+                            ui.label(format!("{}%", bat));
+                        }
                     });
                 }
             }
@@ -646,8 +661,26 @@ impl PartyApp {
                         } else {
                             ui.label(format!("Player {}", i + 1));
                         }
-                        ui.label(format!("🎮 {}", self.pads[player.pad_index].fancyname(),));
-                        ui.small(format!("({})", self.pads[player.pad_index].path(),));
+                        let pad = &self.pads[player.pad_index];
+                        let img = match pad.pad_type() {
+                            PadType::Xbox => egui::include_image!("../../res/xbox.svg"),
+                            PadType::PlayStation => {
+                                egui::include_image!("../../res/playstation.svg")
+                            }
+                            PadType::Nintendo => egui::include_image!("../../res/nintendo.svg"),
+                            PadType::Unknown => egui::include_image!("../../res/gamepad.svg"),
+                        };
+                        ui.add(egui::Image::new(img).max_height(20.0));
+                        if let Some(id) = pad.event_id() {
+                            ui.label(format!("({})", id));
+                        }
+                        if let Some(bat) = pad.battery_percent() {
+                            ui.add(
+                                egui::Image::new(egui::include_image!("../../res/battery.svg"))
+                                    .max_height(12.0),
+                            );
+                            ui.label(format!("{}%", bat));
+                        }
                     });
                     i += 1;
                 }
