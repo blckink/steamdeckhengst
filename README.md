@@ -114,11 +114,11 @@ You'll need these for game launching and sandboxing:
 
 ## 🗺️ Roadmap
 
-- [ ] Fully controller-navigable “Big Picture”-style UI  
-- [ ] UI loading indicators / async progress feedback  
+- [ ] Fully controller-navigable “Big Picture”-style UI -> in progress
+- [ ] UI loading indicators / async progress feedback  -> in progress
 - [ ] Multi-monitor + multi-keyboard/mouse support  
 - [ ] Central handler repo & browser  
-- [ ] In-app update mechanism  
+- [ ] In-app update mechanism  -> in progress
 
 ---
 
