@@ -47,10 +47,10 @@ fn setup_style(ctx: &egui::Context) {
     );
     style
         .text_styles
-        .insert(TextStyle::Body, FontId::new(16.0, FontFamily::Proportional));
+        .insert(TextStyle::Body, FontId::new(13.0, FontFamily::Proportional));
     style.text_styles.insert(
         TextStyle::Button,
-        FontId::new(16.0, FontFamily::Proportional),
+        FontId::new(14.0, FontFamily::Proportional),
     );
     ctx.set_style(style);
 }
