@@ -73,6 +73,9 @@
 # Debug mode (optional):
 export BUILD_MODE=debug
 ./build.sh
+
+# Optional HID battery support (requires libudev):
+cargo build --features hid-battery
 ```
 
 Result: Everything ends up in `/build`.

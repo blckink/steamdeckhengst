@@ -71,6 +71,7 @@ impl Gamepad {
         if let Some(b) = self.battery_percent_sys() {
             return Some(b);
         }
+        #[cfg(feature = "hid-battery")]
         if self.dev.input_id().vendor() == 0x054c {
             return self.battery_percent_hid();
         }
@@ -96,6 +97,8 @@ impl Gamepad {
         }
         None
     }
+
+    #[cfg(feature = "hid-battery")]
 
     fn battery_percent_hid(&self) -> Option<u8> {
         use hidapi::HidApi;
