@@ -32,6 +32,7 @@ pub struct PartyApp {
     pub pads: Vec<Gamepad>,
     pub players: Vec<Player>,
     pub games: Vec<Game>,
+    pub game_scan: Option<Task<Vec<Game>>>,
     pub profiles: Vec<String>,
     pub selected_game: usize,
     pub md_cache: CommonMarkCache,
@@ -56,7 +57,8 @@ impl Default for PartyApp {
             cur_page: MenuPage::Games,
             infotext: String::new(),
             players: Vec::new(),
-            games: scan_all_games(),
+            games: Vec::new(),
+            game_scan: Some(Task::spawn(|| scan_all_games())),
             profiles: Vec::new(),
             selected_game: 0,
             md_cache: CommonMarkCache::default(),
@@ -77,6 +79,15 @@ impl eframe::App for PartyApp {
             if let Some(res) = task.try_join() {
                 self.needs_update = res;
                 self.update_check = None;
+            }
+        }
+        if let Some(task) = &self.game_scan {
+            if let Some(games) = task.try_join() {
+                self.games = games;
+                if self.selected_game >= self.games.len() {
+                    self.selected_game = self.games.len().saturating_sub(1);
+                }
+                self.game_scan = None;
             }
         }
         let side_w = 200.0;
@@ -350,11 +361,7 @@ impl PartyApp {
                                 if let Err(err) = remove_game(&self.games[idx]) {
                                     msg("Error", &format!("Couldn't remove game: {err}"));
                                 }
-                                self.games = scan_all_games();
-                                if self.selected_game >= self.games.len() {
-                                    self.selected_game =
-                                        self.games.len().saturating_sub(1);
-                                }
+                                self.spawn_game_scan();
                             }
                         }
                         if selected {
@@ -388,7 +395,13 @@ impl PartyApp {
                 bottom: 0,
             })
             .show(ui, |ui| {
-                self.display_games_grid(ui);
+                if self.game_scan.is_some() {
+                    ui.vertical_centered(|ui| {
+                        ui.label("Scanning games...");
+                    });
+                } else {
+                    self.display_games_grid(ui);
+                }
             });
     }
 
@@ -398,10 +411,12 @@ impl PartyApp {
                 if let Err(err) = add_game() {
                     println!("Couldn't add game: {err}");
                     msg("Error", &format!("Couldn't add game: {err}"));
+                } else {
+                    self.spawn_game_scan();
                 }
             }
             if ui.button("Refresh").clicked() {
-                self.games = scan_all_games();
+                self.spawn_game_scan();
             }
         });
     }
@@ -885,6 +900,10 @@ impl PartyApp {
         log_info("Executable game finished");
 
         Ok(())
+    }
+
+    fn spawn_game_scan(&mut self) {
+        self.game_scan = Some(Task::spawn(|| scan_all_games()));
     }
 }
 
