@@ -1,16 +1,12 @@
-<table>
-  <tr>
-    <td width="260">
+<p align="center">
       <img src=".github/assets/sdh.svg" width="260" height="260" />
-    </td>
-    <td>
+    </p>
+<p align="center">
       <h1>SteamDeckHengst</h1>
       <em><strong>“Tames your games. Wrangles your inputs. Rides splitscreens like a pro.”</strong></em><br />
       SteamDeckHengst is the rowdy stablehand to your Valve stallion – launching up to <strong>four</strong> simultaneous game instances and splitting your screen like a Texas rodeo. <br />
       Based on <a href="https://github.com/wunnr/partydeck-rs">partydeck-rs</a> by <strong>wunnr</strong> – I just gave it spurs and attitude.
-    </td>
-  </tr>
-</table>
+    </p>
 
 ---
 
