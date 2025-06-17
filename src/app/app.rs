@@ -376,7 +376,8 @@ impl PartyApp {
                             self.selected_game = idx;
                             self.cur_page = MenuPage::Game;
                         }
-                        ui.vertical_centered(|ui| {
+                        ui.add_space(4.0);
+                        ui.horizontal_centered(|ui| {
                             ui.label(self.games[idx].name());
                         });
                     },
@@ -397,15 +398,17 @@ impl PartyApp {
                 bottom: 0,
             })
             .show(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    if self.game_scan.is_some() {
-                        ui.vertical_centered(|ui| {
-                            ui.label("Scanning games...");
-                        });
-                    } else {
-                        self.display_games_grid(ui);
-                    }
-                });
+                egui::ScrollArea::vertical()
+                    .max_height(ui.available_height())
+                    .show(ui, |ui| {
+                        if self.game_scan.is_some() {
+                            ui.vertical_centered(|ui| {
+                                ui.label("Scanning games...");
+                            });
+                        } else {
+                            self.display_games_grid(ui);
+                        }
+                    });
             });
     }
 
@@ -430,7 +433,9 @@ impl PartyApp {
         egui::Frame::new()
             .inner_margin(egui::Margin { left: 20, right: 20, top: 20, bottom: 0 })
             .show(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::ScrollArea::vertical()
+                    .max_height(ui.available_height())
+                    .show(ui, |ui| {
                     ui.heading("Settings");
                     ui.separator();
         let force_sdl2_check = ui.checkbox(&mut self.options.force_sdl, "Force Steam Runtime SDL2");
@@ -551,40 +556,43 @@ impl PartyApp {
                 bottom: 0,
             })
             .show(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.heading("Profiles");
-                    ui.separator();
-                    for profile in &self.profiles {
-                        if ui.selectable_value(&mut 0, 0, profile).clicked() {
-                            if let Err(_) = std::process::Command::new("sh")
-                                .arg("-c")
-                                .arg(format!(
-                                    "xdg-open {}/profiles/{}",
-                                    PATH_PARTY.display(),
-                                    profile
-                                ))
-                                .status()
-                            {
-                                msg("Error", "Couldn't open profile directory!");
-                            }
-                        };
-                    }
-                    ui.add_space(ui.style().spacing.item_spacing.y);
-                    if ui.button("New").clicked() {
-                        if let Some(name) = dialog::Input::new("Enter name (must be alphanumeric):")
-                            .title("New Profile")
-                            .show()
-                            .expect("Could not display dialog box")
-                        {
-                            if !name.is_empty() && name.chars().all(char::is_alphanumeric) {
-                                create_profile(&name).unwrap();
-                            } else {
-                                msg("Error", "Invalid name");
-                            }
+                egui::ScrollArea::vertical()
+                    .max_height(ui.available_height())
+                    .show(ui, |ui| {
+                        ui.heading("Profiles");
+                        ui.separator();
+                        for profile in &self.profiles {
+                            if ui.selectable_value(&mut 0, 0, profile).clicked() {
+                                if let Err(_) = std::process::Command::new("sh")
+                                    .arg("-c")
+                                    .arg(format!(
+                                        "xdg-open {}/profiles/{}",
+                                        PATH_PARTY.display(),
+                                        profile
+                                    ))
+                                    .status()
+                                {
+                                    msg("Error", "Couldn't open profile directory!");
+                                }
+                            };
                         }
-                        self.profiles = scan_profiles(false);
-                    }
-                });
+                        ui.add_space(ui.style().spacing.item_spacing.y);
+                        if ui.button("New").clicked() {
+                            if let Some(name) =
+                                dialog::Input::new("Enter name (must be alphanumeric):")
+                                    .title("New Profile")
+                                    .show()
+                                    .expect("Could not display dialog box")
+                            {
+                                if !name.is_empty() && name.chars().all(char::is_alphanumeric) {
+                                    create_profile(&name).unwrap();
+                                } else {
+                                    msg("Error", "Invalid name");
+                                }
+                            }
+                            self.profiles = scan_profiles(false);
+                        }
+                    });
             });
     }
 
@@ -597,57 +605,62 @@ impl PartyApp {
                 bottom: 0,
             })
             .show(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.image(cur_game!(self).icon());
-                        ui.heading(cur_game!(self).name());
-                    });
+                egui::ScrollArea::vertical()
+                    .max_height(ui.available_height())
+                    .show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            ui.image(cur_game!(self).icon());
+                            ui.heading(cur_game!(self).name());
+                        });
 
-                    ui.separator();
+                        ui.separator();
 
-                    ui.horizontal(|ui| {
-                        if ui
-                            .add_sized([150.0, 40.0], egui::Button::new("Play"))
-                            .clicked()
-                        {
-                            self.players.clear();
-                            self.profiles = scan_profiles(true);
-                            self.cur_page = MenuPage::Players;
-                        }
-                        if let HandlerRef(h) = cur_game!(self) {
-                            ui.add(egui::Separator::default().vertical());
-                            if h.win {
-                                ui.label(" Proton");
-                            } else {
-                                ui.label("🐧 Native");
+                        ui.horizontal(|ui| {
+                            if ui
+                                .add_sized([150.0, 40.0], egui::Button::new("Play"))
+                                .clicked()
+                            {
+                                self.players.clear();
+                                self.profiles = scan_profiles(true);
+                                self.cur_page = MenuPage::Players;
                             }
-                            ui.add(egui::Separator::default().vertical());
-                            ui.label(format!("Author: {}", h.author));
-                            ui.add(egui::Separator::default().vertical());
-                            ui.label(format!("Version: {}", h.version));
-                        }
-                    });
+                            if let HandlerRef(h) = cur_game!(self) {
+                                ui.add(egui::Separator::default().vertical());
+                                if h.win {
+                                    ui.label(" Proton");
+                                } else {
+                                    ui.label("🐧 Native");
+                                }
+                                ui.add(egui::Separator::default().vertical());
+                                ui.label(format!("Author: {}", h.author));
+                                ui.add(egui::Separator::default().vertical());
+                                ui.label(format!("Version: {}", h.version));
+                            }
+                        });
 
-                    if let HandlerRef(h) = cur_game!(self) {
-                        egui::ScrollArea::horizontal()
-                            .max_width(f32::INFINITY)
-                            .show(ui, |ui| {
-                                let available_height = ui.available_height();
-                                ui.horizontal(|ui| {
-                                    for img in h.img_paths.iter() {
-                                        ui.add(
-                                            egui::Image::new(format!("file://{}", img.display()))
+                        if let HandlerRef(h) = cur_game!(self) {
+                            egui::ScrollArea::horizontal()
+                                .max_width(f32::INFINITY)
+                                .show(ui, |ui| {
+                                    let available_height = ui.available_height();
+                                    ui.horizontal(|ui| {
+                                        for img in h.img_paths.iter() {
+                                            ui.add(
+                                                egui::Image::new(format!(
+                                                    "file://{}",
+                                                    img.display()
+                                                ))
                                                 .fit_to_exact_size(egui::vec2(
                                                     available_height * 1.77,
                                                     available_height,
                                                 ))
                                                 .maintain_aspect_ratio(true),
-                                        );
-                                    }
+                                            );
+                                        }
+                                    });
                                 });
-                            });
-                    }
-                });
+                        }
+                    });
             });
     }
 
@@ -660,67 +673,75 @@ impl PartyApp {
                 bottom: 0,
             })
             .show(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.heading("Players");
-                    ui.separator();
-
-                    ui.horizontal(|ui| {
-                        ui.add(
-                            egui::Image::new(egui::include_image!("../../res/BTN_SOUTH.png"))
-                                .max_height(12.0),
-                        );
-                        ui.label("Add");
-                        ui.add(
-                            egui::Image::new(egui::include_image!("../../res/BTN_EAST.png"))
-                                .max_height(12.0),
-                        );
-                        ui.label("Remove");
-                    });
-
-                    let mut i = 0;
-                    for player in &mut self.players {
-                        ui.horizontal(|ui| {
-                            ui.label("👤");
-                            if let HandlerRef(_) = cur_game!(self) {
-                                egui::ComboBox::from_id_salt(format!("{i}")).show_index(
-                                    ui,
-                                    &mut player.profselection,
-                                    self.profiles.len(),
-                                    |i| self.profiles[i].clone(),
-                                );
-                            } else {
-                                ui.label(format!("Player {}", i + 1));
-                            }
-                            let pad = &self.pads[player.pad_index];
-                            let img = match pad.pad_type() {
-                                PadType::Xbox => egui::include_image!("../../res/xbox.svg"),
-                                PadType::PlayStation => {
-                                    egui::include_image!("../../res/playstation.svg")
-                                }
-                                PadType::Nintendo => egui::include_image!("../../res/nintendo.svg"),
-                                PadType::Unknown => egui::include_image!("../../res/gamepad.svg"),
-                            };
-                            ui.add(egui::Image::new(img).max_height(20.0));
-                            if let Some(id) = pad.event_id() {
-                                ui.label(format!("({})", id));
-                            }
-                            if let Some(bat) = pad.battery_percent() {
-                                ui.add(
-                                    egui::Image::new(egui::include_image!("../../res/battery.svg"))
-                                        .max_height(12.0),
-                                );
-                                ui.label(format!("{}%", bat));
-                            }
-                        });
-                        i += 1;
-                    }
-                    if self.players.len() > 0 {
+                egui::ScrollArea::vertical()
+                    .max_height(ui.available_height())
+                    .show(ui, |ui| {
+                        ui.heading("Players");
                         ui.separator();
-                        if ui.button("Start").clicked() {
-                            self.start_game();
+
+                        ui.horizontal(|ui| {
+                            ui.add(
+                                egui::Image::new(egui::include_image!("../../res/BTN_SOUTH.png"))
+                                    .max_height(12.0),
+                            );
+                            ui.label("Add");
+                            ui.add(
+                                egui::Image::new(egui::include_image!("../../res/BTN_EAST.png"))
+                                    .max_height(12.0),
+                            );
+                            ui.label("Remove");
+                        });
+
+                        let mut i = 0;
+                        for player in &mut self.players {
+                            ui.horizontal(|ui| {
+                                ui.label("👤");
+                                if let HandlerRef(_) = cur_game!(self) {
+                                    egui::ComboBox::from_id_salt(format!("{i}")).show_index(
+                                        ui,
+                                        &mut player.profselection,
+                                        self.profiles.len(),
+                                        |i| self.profiles[i].clone(),
+                                    );
+                                } else {
+                                    ui.label(format!("Player {}", i + 1));
+                                }
+                                let pad = &self.pads[player.pad_index];
+                                let img = match pad.pad_type() {
+                                    PadType::Xbox => egui::include_image!("../../res/xbox.svg"),
+                                    PadType::PlayStation => {
+                                        egui::include_image!("../../res/playstation.svg")
+                                    }
+                                    PadType::Nintendo => {
+                                        egui::include_image!("../../res/nintendo.svg")
+                                    }
+                                    PadType::Unknown => {
+                                        egui::include_image!("../../res/gamepad.svg")
+                                    }
+                                };
+                                ui.add(egui::Image::new(img).max_height(20.0));
+                                if let Some(id) = pad.event_id() {
+                                    ui.label(format!("({})", id));
+                                }
+                                if let Some(bat) = pad.battery_percent() {
+                                    ui.add(
+                                        egui::Image::new(egui::include_image!(
+                                            "../../res/battery.svg"
+                                        ))
+                                        .max_height(12.0),
+                                    );
+                                    ui.label(format!("{}%", bat));
+                                }
+                            });
+                            i += 1;
                         }
-                    }
-                });
+                        if self.players.len() > 0 {
+                            ui.separator();
+                            if ui.button("Start").clicked() {
+                                self.start_game();
+                            }
+                        }
+                    });
             });
     }
 
